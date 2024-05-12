@@ -1,6 +1,5 @@
 package com.example.sad.ui.theme
 
-import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -35,12 +34,33 @@ var Montserrat = FontFamily(
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = Montserrat,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
+        fontSize = 18.sp,
+        lineHeight = 25.sp,
+        letterSpacing = 1.sp
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = Montserrat,
+        fontSize = 48.sp,
+        fontWeight = FontWeight.ExtraBold,
+        lineHeight = 44.sp,
+        letterSpacing = 2.sp
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = Montserrat,
+        fontSize = 28.sp,
+        fontWeight = FontWeight.Medium,
+        lineHeight = 39.sp,
+        letterSpacing = 0.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = Montserrat,
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Normal,
+        lineHeight = 29.sp,
+        letterSpacing = 0.sp
+    ),
     /* Other default text styles to override
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
