@@ -24,16 +24,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.sad.LogIn
 import com.example.sad.ui.theme.SADTheme
 
 @Composable
-fun OnboardingScreen(){
+fun OnboardingScreen(navController: NavController){
     Column {
         HeaderBox(mainText = "Welcome", secondaryText = "to Your Sleep Companion")
         Spacer(modifier = Modifier.height(30.dp))
@@ -44,7 +47,9 @@ fun OnboardingScreen(){
         Spacer(modifier = Modifier.height(30.dp))
         ReadyToBegin(
             headingText = "Ready to begin?",
-            paragraphText ="Click Sign up to create a new account. Choose Log in option if you already have one"
+            paragraphText ="Click Sign up to create a new account. Choose Log in option if you already have one",
+            onLoginClick = { navController.navigate(LogIn.route) },
+            onSignUpClick = {}
         )
     }
 }
@@ -202,7 +207,9 @@ fun ReadyToBegin(
     headingColor: Color = MaterialTheme.colorScheme.primary,
     paragraphText: String,
     paragraphTextStyle: TextStyle = MaterialTheme.typography.bodyLarge,
-    paragraphTextAlign: TextAlign = TextAlign.Justify
+    paragraphTextAlign: TextAlign = TextAlign.Justify,
+    onSignUpClick: () -> Unit,
+    onLoginClick: () -> Unit
 ){
     Column {
         OnboardingSecondaryHeading(
@@ -226,46 +233,76 @@ fun ReadyToBegin(
             modifier = Modifier.fillMaxWidth()
         )
         {
-            Button(
-                onClick = { /*TODO*/ },
-                shape = RoundedCornerShape(15.dp)
-            ) {
-                Text(
-                    text = "Sign up",
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier
-                        .padding(vertical = 5.dp)
-                        .padding(horizontal = 10.dp)
-                )
-            }
+            PrimaryButton(
+                text = "Sign up",
+                onClick = onSignUpClick,
+                modifier = Modifier
+                    .padding(vertical = 5.dp)
+                    .padding(horizontal = 10.dp)
+            )
             Spacer(modifier = Modifier.width(30.dp))
-            OutlinedButton(
-                onClick = { /*TODO*/ },
-                shape = RoundedCornerShape(15.dp),
-                border = BorderStroke(width = 3.dp, color = MaterialTheme.colorScheme.primary),
-                modifier = Modifier.background(MaterialTheme.colorScheme.background)
-            ) {
-                Text(
-                    text = "Log in",
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier
-                        .padding(vertical = 5.dp)
-                        .padding(horizontal = 10.dp)
-                )
-            }
+            OutlinedPrimaryButton(
+                text = "Log in",
+                onClick = onLoginClick,
+                modifier = Modifier
+                    .padding(vertical = 5.dp)
+                    .padding(horizontal = 10.dp)
+            )
         }
     }
 }
 
-@Preview(showSystemUi = true)
 @Composable
-fun OnboardingScreenPreview(){
-    SADTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            OnboardingScreen()
-        }
+fun PrimaryButton(
+    text: String,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = MaterialTheme.typography.labelMedium,
+    shape: Shape = RoundedCornerShape(15.dp),
+    onClick: () -> Unit
+){
+    Button(
+        onClick = onClick,
+        shape = shape
+    ) {
+        Text(
+            text = text,
+            style = textStyle,
+            modifier = modifier
+        )
     }
 }
+
+@Composable
+fun OutlinedPrimaryButton(
+    text: String,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = MaterialTheme.typography.labelMedium,
+    border: BorderStroke = BorderStroke(width = 3.dp, color = MaterialTheme.colorScheme.primary),
+    shape: Shape = RoundedCornerShape(15.dp),
+    onClick: () -> Unit
+){
+    OutlinedButton(
+        onClick = onClick,
+        shape = shape,
+        border = border
+    ) {
+        Text(
+            text = text,
+            style = textStyle,
+            modifier = modifier
+        )
+    }
+}
+
+//@Preview(showSystemUi = true)
+//@Composable
+//fun OnboardingScreenPreview(){
+//    SADTheme {
+//        Surface(
+//            modifier = Modifier.fillMaxSize(),
+//            color = MaterialTheme.colorScheme.background
+//        ) {
+//            OnboardingScreen()
+//        }
+//    }
+//}
