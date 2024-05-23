@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sad.LogIn
+import com.example.sad.SignUp
 import com.example.sad.ui.theme.SADTheme
 
 @Composable
@@ -49,7 +50,7 @@ fun OnboardingScreen(navController: NavController){
             headingText = "Ready to begin?",
             paragraphText ="Click Sign up to create a new account. Choose Log in option if you already have one",
             onLoginClick = { navController.navigate(LogIn.route) },
-            onSignUpClick = {}
+            onSignUpClick = { navController.navigate(SignUp.route) }
         )
     }
 }

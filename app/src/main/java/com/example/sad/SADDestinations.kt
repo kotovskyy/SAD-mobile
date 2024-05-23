@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import com.example.sad.ui.login.LoginScreen
 import com.example.sad.ui.onboarding.OnboardingScreen
+import com.example.sad.ui.signup.SignupScreen
 
 interface SADDestination{
     val route: String
@@ -18,4 +19,9 @@ object Onboarding : SADDestination {
 object LogIn : SADDestination {
     override val route = "login"
     override val screen: @Composable (NavController) -> Unit = { LoginScreen(it) }
+}
+
+object SignUp : SADDestination {
+    override val route = "signup"
+    override val screen: @Composable (NavController) -> Unit = { SignupScreen(it) }
 }

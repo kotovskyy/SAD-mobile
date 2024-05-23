@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.sad.R
+import com.example.sad.SignUp
 import com.example.sad.ui.onboarding.HeaderBox
 import com.example.sad.ui.onboarding.LargeTextBody
 import com.example.sad.ui.onboarding.OutlinedPrimaryButton
@@ -67,7 +68,7 @@ fun LoginScreen(navController: NavController){
             dividerThickness = (-1).dp,
         )
         Spacer(modifier = Modifier.height(20.dp))
-        LoginForm(onSignUpClick = {})
+        LoginForm(onSignUpClick = { navController.navigate(SignUp.route) })
     }
 }
 
@@ -126,7 +127,6 @@ fun LoginForm(
         Spacer(modifier = Modifier.height(60.dp))
         DontHaveAccount(onSignUpClick = onSignUpClick)
         Spacer(modifier = Modifier.height(50.dp))
-//        AlreadyHaveAccount()
     }
 }
 
@@ -225,12 +225,14 @@ fun PasswordField(
     }
 
     val trailingIconButton  = @Composable {
-        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-            Icon(
-                trailingIcon,
-                contentDescription = "Password",
-                tint = MaterialTheme.colorScheme.primary
-            )
+        if (password.isNotEmpty()){
+            IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                Icon(
+                    trailingIcon,
+                    contentDescription = "Password",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 

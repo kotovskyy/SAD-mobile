@@ -57,6 +57,9 @@ fun SADApp(){
                 composable(route = LogIn.route) {
                     LogIn.screen(navController)
                 }
+                composable(route = SignUp.route) {
+                    SignUp.screen(navController)
+                }
             }
         }
     }
