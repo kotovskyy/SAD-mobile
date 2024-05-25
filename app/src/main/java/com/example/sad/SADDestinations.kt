@@ -2,6 +2,7 @@ package com.example.sad
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
+import com.example.sad.ui.devices.DevicesScreen
 import com.example.sad.ui.login.LoginScreen
 import com.example.sad.ui.onboarding.OnboardingScreen
 import com.example.sad.ui.signup.SignupScreen
@@ -25,3 +26,10 @@ object SignUp : SADDestination {
     override val route = "signup"
     override val screen: @Composable (NavController) -> Unit = { SignupScreen(it) }
 }
+
+object Devices : SADDestination {
+    override val route = "devices"
+    override val screen: @Composable (NavController) -> Unit = { DevicesScreen(it) }
+}
+
+

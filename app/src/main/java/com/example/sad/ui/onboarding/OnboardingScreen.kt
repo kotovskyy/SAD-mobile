@@ -32,6 +32,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.sad.Devices
 import com.example.sad.LogIn
 import com.example.sad.SignUp
 import com.example.sad.ui.theme.SADTheme
@@ -52,6 +54,18 @@ fun OnboardingScreen(navController: NavController){
             onLoginClick = { navController.navigate(LogIn.route) },
             onSignUpClick = { navController.navigate(SignUp.route) }
         )
+        Spacer(modifier = Modifier.height(20.dp))
+        Row (
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ){
+            OutlinedPrimaryButton(
+                text = "Devices",
+                onClick = {
+                    navController.navigate(Devices.route)
+                }
+            )
+        }
     }
 }
 
@@ -295,15 +309,16 @@ fun OutlinedPrimaryButton(
     }
 }
 
-//@Preview(showSystemUi = true)
-//@Composable
-//fun OnboardingScreenPreview(){
-//    SADTheme {
-//        Surface(
-//            modifier = Modifier.fillMaxSize(),
-//            color = MaterialTheme.colorScheme.background
-//        ) {
-//            OnboardingScreen()
-//        }
-//    }
-//}
+@Preview(showSystemUi = true)
+@Composable
+fun OnboardingScreenPreview(){
+    SADTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            val navController = rememberNavController()
+            OnboardingScreen(navController)
+        }
+    }
+}
