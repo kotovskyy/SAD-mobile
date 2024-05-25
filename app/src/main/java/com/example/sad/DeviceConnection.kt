@@ -6,16 +6,19 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
+import android.bluetooth.BluetoothSocketException
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import java.io.IOException
 import java.util.UUID
 
 @SuppressLint("MissingPermission")
-class ConnectionThread(device: BluetoothDevice, context: Context, bluetoothAdapter: BluetoothAdapter, uuid: UUID) : Thread() {
-    private val uuid = uuid
+class ConnectionThread(device: BluetoothDevice, context: Context, bluetoothAdapter: BluetoothAdapter) : Thread() {
+    private val uuid = device.uuids[0].uuid
+    private val device = device
     private val context = context
     private val bluetoothAdapter = bluetoothAdapter
 
@@ -26,7 +29,14 @@ class ConnectionThread(device: BluetoothDevice, context: Context, bluetoothAdapt
         // Cancel discovery because it otherwise slows down the connection.
         bluetoothAdapter.cancelDiscovery()
 
-        mmSocket?.connect()
+        try {
+            mmSocket?.connect()
+        } catch (e: Exception){
+            Log.e("CONNECTION", "Error while connecting")
+//            Toast.makeText(context, "ERROR while connecting", Toast.LENGTH_LONG).show()
+        }
+        Log.i("CONNECTION", "Connected to ${this.device.name}")
+//        Toast.makeText(context, "Connected to ${this.device.name}", Toast.LENGTH_LONG).show()
     }
 
     // Closes the client socket and causes the thread to finish.
@@ -34,7 +44,8 @@ class ConnectionThread(device: BluetoothDevice, context: Context, bluetoothAdapt
         try {
             mmSocket?.close()
         } catch (e: IOException) {
-            Toast.makeText(context, "Could not close the client socket", Toast.LENGTH_SHORT).show()
+            Log.e("CONNECTION", "Could not close the client socket")
+//            Toast.makeText(context, "Could not close the client socket", Toast.LENGTH_SHORT).show()
         }
     }
 }

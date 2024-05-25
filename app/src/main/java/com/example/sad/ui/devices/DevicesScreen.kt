@@ -15,6 +15,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,6 +24,7 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -68,7 +70,7 @@ fun DevicesScreen(navController: NavController, viewModel: DevicesViewModel = vi
     val context = LocalContext.current
     var deviceName by remember { mutableStateOf("No device connected") }
     val devices = viewModel.getDevices()
-    val uuid = viewModel.getUUID()
+//    val uuid = viewModel.getUUID()
     val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     val bluetoothAdapter by remember { mutableStateOf(bluetoothManager.adapter) }
 
@@ -104,8 +106,9 @@ fun DevicesScreen(navController: NavController, viewModel: DevicesViewModel = vi
                             Toast.makeText(context, "Clicked ${it.name}", Toast.LENGTH_LONG).show()
 
                             var device: BluetoothDevice = bluetoothAdapter.getRemoteDevice(it.address)
-                            var connectionThread = ConnectionThread(device, context, bluetoothAdapter, uuid)
-//                            connectionThread.start()
+                            var connectionThread = ConnectionThread(device, context, bluetoothAdapter)
+                            connectionThread.start()
+                            Toast.makeText(context, "Trying to connect", Toast.LENGTH_LONG).show()
                         }
                 )
             }
@@ -181,6 +184,10 @@ fun AddNewDevice(context: Context, bluetoothAdapter: BluetoothAdapter, addDevice
                         pairedDevices?.forEach { device ->
                             val deviceName = device.name
                             val deviceAddress = device.address
+                            val deviceUUID = if (device.uuids != null) {
+                                device.uuids[0].uuid
+                            } else { null }
+                            Log.e("DEVICE UUID", "${deviceName} : ${deviceUUID}")
                             addDevice(deviceName, deviceAddress)
                         }
 
