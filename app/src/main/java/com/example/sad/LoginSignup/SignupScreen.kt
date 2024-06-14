@@ -24,9 +24,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sad.Login
-import com.example.sad.auth.RetrofitInstance
-import com.example.sad.auth.SignupRequest
-import com.example.sad.auth.SignupResponse
+import com.example.sad.api.auth.AuthRetrofitInstance
+import com.example.sad.api.auth.SignupRequest
+import com.example.sad.api.auth.SignupResponse
 import com.example.sad.navigateSingleOnTop
 
 @Composable
@@ -80,7 +80,7 @@ fun SignupForm(context: Context, navController: NavController){
 fun SignupButton(context: Context, username: String, email: String, password: String, navController: NavController) {
     OutlinedButton(onClick = {
         val signupRequest = SignupRequest(username = username, email = email, password = password)
-        RetrofitInstance.api.register(signupRequest).enqueue(object : retrofit2.Callback<SignupResponse> {
+        AuthRetrofitInstance.api.register(signupRequest).enqueue(object : retrofit2.Callback<SignupResponse> {
             override fun onResponse(call: retrofit2.Call<SignupResponse>, response: retrofit2.Response<SignupResponse>) {
                 if (response.isSuccessful && response.code() == 201) {
                     Toast.makeText(context, "Registration Successful", Toast.LENGTH_LONG).show()

@@ -14,7 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.sad.HomeActivity.HomeActivity
-import com.example.sad.auth.SecureStorage
+import com.example.sad.api.auth.SecureStorage
 import com.example.sad.ui.theme.SADTheme
 
 class MainActivity : ComponentActivity() {

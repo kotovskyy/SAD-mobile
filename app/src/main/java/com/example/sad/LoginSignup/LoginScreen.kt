@@ -44,10 +44,10 @@ import androidx.navigation.NavController
 import com.example.sad.HomeActivity.HomeActivity
 import com.example.sad.MainActivity
 import com.example.sad.R
-import com.example.sad.auth.LoginRequest
-import com.example.sad.auth.LoginResponse
-import com.example.sad.auth.RetrofitInstance
-import com.example.sad.auth.SecureStorage
+import com.example.sad.api.auth.LoginRequest
+import com.example.sad.api.auth.LoginResponse
+import com.example.sad.api.auth.AuthRetrofitInstance
+import com.example.sad.api.auth.SecureStorage
 import com.example.sad.navigateSingleOnTop
 
 @Composable
@@ -231,7 +231,7 @@ fun LoginButton(context: Context, email: String, password: String){
 
 fun loginUser(email: String, password: String, context: Context) {
     val loginRequest = LoginRequest(email, password)
-    RetrofitInstance.api.login(loginRequest).enqueue(object : retrofit2.Callback<LoginResponse> {
+    AuthRetrofitInstance.api.login(loginRequest).enqueue(object : retrofit2.Callback<LoginResponse> {
         override fun onResponse(call: retrofit2.Call<LoginResponse>, response: retrofit2.Response<LoginResponse>) {
             if (response.isSuccessful && response.code() == 200) {
                 Toast.makeText(context, "Login Successful", Toast.LENGTH_LONG).show()

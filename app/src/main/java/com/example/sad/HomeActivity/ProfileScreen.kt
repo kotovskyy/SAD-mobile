@@ -17,7 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sad.MainActivity
-import com.example.sad.auth.SecureStorage
+import com.example.sad.api.auth.SecureStorage
 
 @Composable
 fun ProfileScreen(navController: NavController){

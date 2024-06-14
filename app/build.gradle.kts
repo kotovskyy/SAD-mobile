@@ -50,6 +50,8 @@ android {
 }
 
 dependencies {
+    val lifecycleViewModelComposeVersion = "2.8.2"
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleViewModelComposeVersion")
     implementation ("androidx.security:security-crypto:1.1.0-alpha03")
     val retrofitVersion = "2.11.0"
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")

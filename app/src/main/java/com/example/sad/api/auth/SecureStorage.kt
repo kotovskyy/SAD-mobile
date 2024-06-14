@@ -1,4 +1,4 @@
-package com.example.sad.auth
+package com.example.sad.api.auth
 
 import android.content.Context
 import android.content.SharedPreferences

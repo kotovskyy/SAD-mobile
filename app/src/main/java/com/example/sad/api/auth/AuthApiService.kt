@@ -1,4 +1,4 @@
-package com.example.sad.auth
+package com.example.sad.api.auth
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -19,7 +19,7 @@ interface AuthApiService {
     fun register(@Body signupRequest: SignupRequest): Call<SignupResponse>
 }
 
-object RetrofitInstance {
+object AuthRetrofitInstance {
     val api: AuthApiService by lazy {
         Retrofit.Builder()
             .baseUrl("http://192.168.1.102:8000") // Replace with your actual API URL
