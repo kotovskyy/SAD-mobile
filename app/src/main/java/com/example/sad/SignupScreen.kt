@@ -1,6 +1,7 @@
 package com.example.sad
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,14 +10,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import javax.security.auth.callback.Callback
 
 @Composable
 fun SignupScreen(navController: NavController){
@@ -40,29 +47,51 @@ fun SignupScreen(navController: NavController){
 
 @Composable
 fun SignupForm(context: Context){
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
     ) {
-        EmailField()
+        OutlinedTextField(value = username, onValueChange = {username = it}, placeholder = {
+            Text("Username")
+        })
         Spacer(modifier = Modifier.height(10.dp))
-        PasswordField(placeholder = "Password")
+        EmailField(email = email, onEmailChange = { email = it })
         Spacer(modifier = Modifier.height(10.dp))
-        PasswordField(placeholder = "Confirm password")
+        PasswordField(placeholder = "Password", password = password, onPasswordChange = { password = it })
         Spacer(modifier = Modifier.height(10.dp))
-        SignupButton(context)
+        PasswordField(placeholder = "Confirm password", password = confirmPassword, onPasswordChange = { confirmPassword = it })
+        Spacer(modifier = Modifier.height(10.dp))
+        SignupButton(context, username, email, password)
     }
 }
 
 @Composable
-fun SignupButton(context: Context){
-    OutlinedButton(
-        onClick = {
-            Toast.makeText(context, "Sign up attempt", Toast.LENGTH_LONG).show()
-        }
-    ) {
-        Text(text = "Sign up")
+fun SignupButton(context: Context, username: String, email: String, password: String) {
+    OutlinedButton(onClick = {
+        val signupRequest = SignupRequest(username = username, email = email, password = password)
+        RetrofitInstance.api.register(signupRequest).enqueue(object : retrofit2.Callback<SignupResponse> {
+            override fun onResponse(call: retrofit2.Call<SignupResponse>, response: retrofit2.Response<SignupResponse>) {
+                if (response.isSuccessful && response.code() == 201) {
+                    Toast.makeText(context, "Registration Successful", Toast.LENGTH_LONG).show()
+                } else {
+                    val errorMessage = response.body()?.message ?: "Unknown registration error"
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                    Log.d("SignupError", "Failed with body: ${response.body()} and status code: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<SignupResponse>, t: Throwable) {
+                Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_LONG).show()
+            }
+        })
+    }) {
+        Text(text = "Sign Up")
     }
 }

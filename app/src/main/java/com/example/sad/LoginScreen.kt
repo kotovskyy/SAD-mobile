@@ -121,28 +121,34 @@ fun MainBottomNavigationBar(navController: NavController, selectedItem: String) 
 
 @Composable
 fun LoginForm(context: Context){
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
     ) {
-        EmailField()
+        EmailField(email = email, onEmailChange = { email = it })
         Spacer(modifier = Modifier.height(10.dp))
-        PasswordField(placeholder = "Password")
+        PasswordField(password = password, placeholder = "Password", onPasswordChange = {password = it})
         Spacer(modifier = Modifier.height(10.dp))
-        LoginButton(context)
+        LoginButton(context, email, password)
     }
 }
 
 @Composable
-fun EmailField(){
-    var email by remember { mutableStateOf("") }
+fun EmailField(
+    email: String,
+    onEmailChange: (String) -> Unit
+){
+//    var email by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
     OutlinedTextField(
         value = email,
-        onValueChange = {email = it},
+        onValueChange = { onEmailChange(it) },
         placeholder = {
             Text(
                 text = "Email",
@@ -162,8 +168,12 @@ fun EmailField(){
 }
 
 @Composable
-fun PasswordField(placeholder: String = "Password"){
-    var password by remember { mutableStateOf("") }
+fun PasswordField(
+    placeholder: String = "Password",
+    password: String,
+    onPasswordChange: (String) -> Unit
+){
+//    var password by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     var isPasswordVisible by remember { mutableStateOf(false) }
 
@@ -187,7 +197,7 @@ fun PasswordField(placeholder: String = "Password"){
 
     OutlinedTextField(
         value = password,
-        onValueChange = {password = it},
+        onValueChange = { onPasswordChange(it) },
         placeholder = {
             Text(
                 text = placeholder,
@@ -209,12 +219,43 @@ fun PasswordField(placeholder: String = "Password"){
 }
 
 @Composable
-fun LoginButton(context: Context){
+fun LoginButton(context: Context, email: String, password: String){
     OutlinedButton(
         onClick = {
-            Toast.makeText(context, "Login attempt", Toast.LENGTH_LONG).show()
+//            Toast.makeText(context, "Login attempt", Toast.LENGTH_LONG).show()
+            loginUser(email = email, password = password, context = context)
         }
     ) {
         Text(text = "Log in")
+    }
+}
+
+fun loginUser(email: String, password: String, context: Context) {
+    val loginRequest = LoginRequest(email, password)
+    RetrofitInstance.api.login(loginRequest).enqueue(object : retrofit2.Callback<LoginResponse> {
+        override fun onResponse(call: retrofit2.Call<LoginResponse>, response: retrofit2.Response<LoginResponse>) {
+            if (response.isSuccessful && response.code() == 200) {
+                Toast.makeText(context, "Login Successful", Toast.LENGTH_LONG).show()
+                // Save the token
+                saveToken(context, response.body()?.token)
+                // Navigate to home screen or dashboard
+//                navController.navigate("home_route")
+            } else {
+                Toast.makeText(context, response.body()?.message ?: "Login failed", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        override fun onFailure(call: retrofit2.Call<LoginResponse>, t: Throwable) {
+            Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
+        }
+    })
+}
+
+fun saveToken(context: Context, token: String?) {
+    // Use SharedPreferences or DataStore to save the token
+    val sharedPref = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) ?: return
+    with(sharedPref.edit()) {
+        putString("auth_token", token)
+        apply()
     }
 }
