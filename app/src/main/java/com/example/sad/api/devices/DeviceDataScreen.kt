@@ -10,6 +10,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,6 +28,10 @@ import com.example.sad.navigateSingleOnTop
 @Composable
 fun DeviceDataScreen(navController: NavController, deviceId: Int) {
     // Implementation of the device details UI
+    val context = LocalContext.current
+    val token = SecureStorage.getToken(context)
+    val viewModel: DevicesViewModel = viewModel(factory = DevicesViewModelFactory(token))
+    val device = viewModel.devices.collectAsState().value.find { it.id == deviceId }
     Scaffold(
         topBar = { HomeTopBar("Device data") },
         bottomBar = { DeviceBottomNavigationBar(navController, "device_data/$deviceId", deviceId) }
@@ -38,7 +43,7 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-
+            Text(text = "Device Data: ${device?.name} id: ${device?.id}")
         }
     }
 }

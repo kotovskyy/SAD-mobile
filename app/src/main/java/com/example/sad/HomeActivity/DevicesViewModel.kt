@@ -48,8 +48,8 @@ class DevicesViewModel(token: String?) : ViewModel() {
     }
 
     // Function to get a device by its ID
-    fun getDeviceById(deviceId: Int): Device? {
-        return devices.value.firstOrNull { it.id == deviceId }
+    fun getDeviceById(deviceId: Int): Device {
+        return devices.value.first { it.id == deviceId }
     }
 
     private fun fetchDevices() {
