@@ -236,7 +236,8 @@ fun loginUser(email: String, password: String, context: Context) {
             if (response.isSuccessful && response.code() == 200) {
                 Toast.makeText(context, "Login Successful", Toast.LENGTH_LONG).show()
                 Log.d("AUTH TOKEN", "Token: ${response.body()?.token}")
-                saveToken(context, response.body()?.token)
+                // Store the token in secure storage
+                SecureStorage.storeToken(context, response.body()?.token!!)
                 // Navigate to Home screen (HOME ACTIVITY)
                 val intent = Intent(context, HomeActivity::class.java)
                 context.startActivity(intent)
@@ -250,13 +251,4 @@ fun loginUser(email: String, password: String, context: Context) {
             Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
         }
     })
-}
-
-fun saveToken(context: Context, token: String?) {
-    // Use SharedPreferences or DataStore to save the token
-    val sharedPref = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) ?: return
-    with(sharedPref.edit()) {
-        putString("auth_token", token)
-        apply()
-    }
 }

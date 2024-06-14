@@ -1,5 +1,6 @@
 package com.example.sad
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +20,15 @@ import com.example.sad.ui.theme.SADTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Check if the token exists and is valid
+        val token = SecureStorage.getToken(this)
+        if (!token.isNullOrEmpty()) {
+            // token found or token is invalid, go to login
+            startActivity(Intent(this, HomeActivity::class.java))
+            finish()
+        }
+
         setContent {
             SADTheme {
                 // A surface container using the 'background' color from the theme

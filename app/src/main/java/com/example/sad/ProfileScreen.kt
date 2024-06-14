@@ -1,5 +1,6 @@
 package com.example.sad
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,11 +13,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 @Composable
 fun ProfileScreen(navController: NavController){
+    val context = LocalContext.current
+
     Scaffold(
         topBar = { HomeTopBar("Profile") },
         bottomBar = { HomeBottomNavigationBar(navController = navController, selectedItem = "profile") }
@@ -30,7 +34,16 @@ fun ProfileScreen(navController: NavController){
         ) {
             Text("Profile Screen")
             Spacer(modifier = Modifier.height(16.dp))
-            OutlinedButton(onClick = { /*TODO*/ }) {
+            OutlinedButton(
+                onClick = {
+                    // Clear the stored token
+                    SecureStorage.clearToken(context)
+                    // Navigate back to the login screen
+                    val intent = Intent(context, MainActivity::class.java)
+                    context.startActivity(intent)
+                    (context as HomeActivity).finish()
+                }
+            ) {
                 Text("Logout")
             }
         }
