@@ -8,12 +8,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.sad.Devices
 import com.example.sad.Home
 import com.example.sad.Profile
+import com.example.sad.api.devices.DeviceData
+import com.example.sad.api.devices.DeviceSettigns
 import com.example.sad.ui.theme.SADTheme
 
 class HomeActivity : ComponentActivity() {
@@ -46,6 +50,16 @@ fun HomeActivityNavigation() {
         }
         composable(route = Devices.route) {
             DevicesScreen(navController = navController)
+        }
+        composable(route = DeviceData.route,
+            arguments = listOf(navArgument("deviceId") { type = NavType.IntType })) { backStackEntry ->
+            val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1  // Handling default or error case
+            DeviceData.screen(navController, deviceId)
+        }
+        composable(route = DeviceSettigns.route,
+            arguments = listOf(navArgument("deviceId") { type = NavType.IntType })) { backStackEntry ->
+            val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1  // Handling default or error case
+            DeviceSettigns.screen(navController, deviceId)
         }
     }
 }

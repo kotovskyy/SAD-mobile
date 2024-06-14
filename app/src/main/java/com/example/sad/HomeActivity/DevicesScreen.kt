@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sad.api.auth.SecureStorage
+import com.example.sad.api.devices.DeviceData
+import com.example.sad.navigateSingleOnTop
 
 @Composable
 fun DevicesScreen(navController: NavController){
@@ -62,28 +64,29 @@ fun DevicesScreen(navController: NavController){
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            DevicesList(devices = devices.value)
+            DevicesList(devices = devices.value, navController)
         }
     }
 }
 
 @Composable
-fun DevicesList(devices: List<Device>){
+fun DevicesList(devices: List<Device>, navController: NavController){
     LazyColumn {
         items(devices) { device ->
-            DeviceItem(device)
+            DeviceItem(device, navController)
         }
     }
 }
 
 @Composable
-fun DeviceItem(device: Device) {
+fun DeviceItem(device: Device, navController: NavController) {
     val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
+                navController.navigateSingleOnTop("device_data/${device.id}")
                 Toast.makeText(context, "Device ID: ${device.id}", Toast.LENGTH_SHORT).show()
             },
         elevation = CardDefaults.cardElevation(

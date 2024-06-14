@@ -6,16 +6,16 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.Call
 
-data class SignupRequest(val username: String, val email: String, val password: String)
+data class SignupRequest(val username: String, val email: String, val password: String, val password2: String)
 data class SignupResponse(val success: Boolean, val message: String)
 data class LoginRequest(val email: String, val password: String)
 data class LoginResponse(val success: Boolean, val message: String, val token: String?)
 
 interface AuthApiService {
-    @POST("login/")
+    @POST("users/login/")
     fun login(@Body loginRequest: LoginRequest): Call<LoginResponse>
 
-    @POST("register/")
+    @POST("users/register/")
     fun register(@Body signupRequest: SignupRequest): Call<SignupResponse>
 }
 

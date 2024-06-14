@@ -47,6 +47,11 @@ class DevicesViewModel(token: String?) : ViewModel() {
         fetchDevices()
     }
 
+    // Function to get a device by its ID
+    fun getDeviceById(deviceId: Int): Device? {
+        return devices.value.firstOrNull { it.id == deviceId }
+    }
+
     private fun fetchDevices() {
         api?.getAllDevices()?.enqueue(object : retrofit2.Callback<List<Device>> {
             override fun onResponse(call: retrofit2.Call<List<Device>>, response: retrofit2.Response<List<Device>>) {

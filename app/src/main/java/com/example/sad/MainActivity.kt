@@ -59,5 +59,8 @@ fun AppNavigation(){
 fun NavController.navigateSingleOnTop(route: String){
     this.navigate(route) {
         launchSingleTop = true
+        popUpTo(route) {
+            inclusive = true
+        }
     }
 }

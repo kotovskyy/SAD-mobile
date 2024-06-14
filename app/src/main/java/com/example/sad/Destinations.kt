@@ -7,6 +7,7 @@ import com.example.sad.HomeActivity.HomeScreen
 import com.example.sad.HomeActivity.ProfileScreen
 import com.example.sad.LoginSignup.LoginScreen
 import com.example.sad.LoginSignup.SignupScreen
+import com.example.sad.api.devices.DeviceDataScreen
 
 interface Destination{
     val route: String

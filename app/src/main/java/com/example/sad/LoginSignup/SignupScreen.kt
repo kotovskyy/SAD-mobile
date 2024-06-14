@@ -63,7 +63,7 @@ fun SignupForm(context: Context, navController: NavController){
             .fillMaxSize()
     ) {
         OutlinedTextField(value = username, onValueChange = {username = it}, placeholder = {
-            Text("Username")
+            Text("Your name")
         })
         Spacer(modifier = Modifier.height(10.dp))
         EmailField(email = email, onEmailChange = { email = it })
@@ -72,16 +72,17 @@ fun SignupForm(context: Context, navController: NavController){
         Spacer(modifier = Modifier.height(10.dp))
         PasswordField(placeholder = "Confirm password", password = confirmPassword, onPasswordChange = { confirmPassword = it })
         Spacer(modifier = Modifier.height(10.dp))
-        SignupButton(context, username, email, password, navController)
+        SignupButton(context, username, email, password, confirmPassword, navController)
     }
 }
 
 @Composable
-fun SignupButton(context: Context, username: String, email: String, password: String, navController: NavController) {
+fun SignupButton(context: Context, username: String, email: String, password: String, password2: String, navController: NavController) {
     OutlinedButton(onClick = {
-        val signupRequest = SignupRequest(username = username, email = email, password = password)
+        val signupRequest = SignupRequest(username = username, email = email, password = password, password2 = password2)
         AuthRetrofitInstance.api.register(signupRequest).enqueue(object : retrofit2.Callback<SignupResponse> {
             override fun onResponse(call: retrofit2.Call<SignupResponse>, response: retrofit2.Response<SignupResponse>) {
+                Log.d("SignupResponse", "Response: ${response.body()}")
                 if (response.isSuccessful && response.code() == 201) {
                     Toast.makeText(context, "Registration Successful", Toast.LENGTH_LONG).show()
                     navController.navigateSingleOnTop(Login.route)
