@@ -1,6 +1,7 @@
 package com.example.sad.api.devices
 
 import androidx.compose.ui.platform.LocalContext
+import com.example.sad.BACKEND_ROOT_URL
 import com.example.sad.HomeActivity.Device
 import com.example.sad.api.auth.AuthApiService
 import com.example.sad.api.auth.SecureStorage
@@ -44,7 +45,7 @@ object DevicesRetrofitInstance {
             .build()
 
         return Retrofit.Builder()
-            .baseUrl("http://192.168.1.102:8000")
+            .baseUrl(BACKEND_ROOT_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
