@@ -3,6 +3,7 @@ package com.example.sad.api.devices
 import androidx.compose.ui.platform.LocalContext
 import com.example.sad.BACKEND_ROOT_URL
 import com.example.sad.HomeActivity.Device
+import com.example.sad.HomeActivity.Measurement
 import com.example.sad.api.auth.AuthApiService
 import com.example.sad.api.auth.SecureStorage
 import okhttp3.Interceptor
@@ -14,12 +15,10 @@ import retrofit2.http.Body
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Path
+import retrofit2.http.Query
 
-data class DevicesResponse(
-    val success: Boolean,
-    val devices: List<Device>,
-    val message: String?
-)
+data class MeasurementsRequest(val device: Int)
 
 class AuthInterceptor(private val token: String?) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -36,6 +35,9 @@ class AuthInterceptor(private val token: String?) : Interceptor {
 interface DevicesApiService {
     @GET("devices/")
     fun getAllDevices(): Call<List<Device>>
+
+    @GET("measurements/")
+    fun getDeviceMeasurements(@Query("device") device: Int): Call<List<Measurement>>
 }
 
 object DevicesRetrofitInstance {
