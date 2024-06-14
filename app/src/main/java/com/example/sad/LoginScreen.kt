@@ -1,7 +1,9 @@
 package com.example.sad
 
 import android.content.Context
+import android.content.Intent
 import android.provider.ContactsContract.CommonDataKinds.Email
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -143,7 +145,6 @@ fun EmailField(
     email: String,
     onEmailChange: (String) -> Unit
 ){
-//    var email by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
     OutlinedTextField(
@@ -173,7 +174,6 @@ fun PasswordField(
     password: String,
     onPasswordChange: (String) -> Unit
 ){
-//    var password by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     var isPasswordVisible by remember { mutableStateOf(false) }
 
@@ -222,7 +222,6 @@ fun PasswordField(
 fun LoginButton(context: Context, email: String, password: String){
     OutlinedButton(
         onClick = {
-//            Toast.makeText(context, "Login attempt", Toast.LENGTH_LONG).show()
             loginUser(email = email, password = password, context = context)
         }
     ) {
@@ -236,10 +235,12 @@ fun loginUser(email: String, password: String, context: Context) {
         override fun onResponse(call: retrofit2.Call<LoginResponse>, response: retrofit2.Response<LoginResponse>) {
             if (response.isSuccessful && response.code() == 200) {
                 Toast.makeText(context, "Login Successful", Toast.LENGTH_LONG).show()
-                // Save the token
+                Log.d("AUTH TOKEN", "Token: ${response.body()?.token}")
                 saveToken(context, response.body()?.token)
-                // Navigate to home screen or dashboard
-//                navController.navigate("home_route")
+                // Navigate to Home screen (HOME ACTIVITY)
+                val intent = Intent(context, HomeActivity::class.java)
+                context.startActivity(intent)
+                (context as MainActivity).finish()
             } else {
                 Toast.makeText(context, response.body()?.message ?: "Login failed", Toast.LENGTH_LONG).show()
             }

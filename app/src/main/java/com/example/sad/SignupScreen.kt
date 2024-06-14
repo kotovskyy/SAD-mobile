@@ -40,13 +40,13 @@ fun SignupScreen(navController: NavController){
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            SignupForm(context)
+            SignupForm(context, navController)
         }
     }
 }
 
 @Composable
-fun SignupForm(context: Context){
+fun SignupForm(context: Context, navController: NavController){
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -68,18 +68,19 @@ fun SignupForm(context: Context){
         Spacer(modifier = Modifier.height(10.dp))
         PasswordField(placeholder = "Confirm password", password = confirmPassword, onPasswordChange = { confirmPassword = it })
         Spacer(modifier = Modifier.height(10.dp))
-        SignupButton(context, username, email, password)
+        SignupButton(context, username, email, password, navController)
     }
 }
 
 @Composable
-fun SignupButton(context: Context, username: String, email: String, password: String) {
+fun SignupButton(context: Context, username: String, email: String, password: String, navController: NavController) {
     OutlinedButton(onClick = {
         val signupRequest = SignupRequest(username = username, email = email, password = password)
         RetrofitInstance.api.register(signupRequest).enqueue(object : retrofit2.Callback<SignupResponse> {
             override fun onResponse(call: retrofit2.Call<SignupResponse>, response: retrofit2.Response<SignupResponse>) {
                 if (response.isSuccessful && response.code() == 201) {
                     Toast.makeText(context, "Registration Successful", Toast.LENGTH_LONG).show()
+                    navController.navigateSingleOnTop(Login.route)
                 } else {
                     val errorMessage = response.body()?.message ?: "Unknown registration error"
                     Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()

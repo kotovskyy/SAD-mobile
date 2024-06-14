@@ -22,7 +22,7 @@ interface AuthApiService {
 object RetrofitInstance {
     val api: AuthApiService by lazy {
         Retrofit.Builder()
-            .baseUrl("http://192.168.1.100:8000") // Replace with your actual API URL
+            .baseUrl("http://192.168.1.102:8000") // Replace with your actual API URL
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(AuthApiService::class.java)

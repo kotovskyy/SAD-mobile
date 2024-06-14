@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.security:security-crypto:1.1.0-alpha03")
     val retrofitVersion = "2.11.0"
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
