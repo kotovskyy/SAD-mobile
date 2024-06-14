@@ -1,4 +1,4 @@
-package com.example.sad
+package com.example.sad.LoginSignup
 
 import android.content.Context
 import android.util.Log
@@ -23,14 +23,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import javax.security.auth.callback.Callback
+import com.example.sad.Login
+import com.example.sad.auth.RetrofitInstance
+import com.example.sad.auth.SignupRequest
+import com.example.sad.auth.SignupResponse
+import com.example.sad.navigateSingleOnTop
 
 @Composable
 fun SignupScreen(navController: NavController){
     val context = LocalContext.current
 
     Scaffold(
-        topBar = { MainTopAppBar(title = "Sign up")},
+        topBar = { MainTopAppBar(title = "Sign up") },
         bottomBar = { MainBottomNavigationBar(navController = navController, selectedItem = "signup") }
     ) { innerPadding ->
         Column(

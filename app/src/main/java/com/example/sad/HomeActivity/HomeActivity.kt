@@ -1,4 +1,4 @@
-package com.example.sad
+package com.example.sad.HomeActivity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,6 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.sad.Devices
+import com.example.sad.Home
+import com.example.sad.Profile
 import com.example.sad.ui.theme.SADTheme
 
 class HomeActivity : ComponentActivity() {

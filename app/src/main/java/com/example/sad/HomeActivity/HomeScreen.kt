@@ -1,4 +1,4 @@
-package com.example.sad
+package com.example.sad.HomeActivity
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
+import com.example.sad.LoginSignup.BottomNavItem
+import com.example.sad.R
+import com.example.sad.navigateSingleOnTop
 
 @Composable
 fun HomeScreen(navController: NavController) {

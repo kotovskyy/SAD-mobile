@@ -2,6 +2,11 @@ package com.example.sad
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
+import com.example.sad.HomeActivity.DevicesScreen
+import com.example.sad.HomeActivity.HomeScreen
+import com.example.sad.HomeActivity.ProfileScreen
+import com.example.sad.LoginSignup.LoginScreen
+import com.example.sad.LoginSignup.SignupScreen
 
 interface Destination{
     val route: String

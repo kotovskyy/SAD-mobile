@@ -1,4 +1,4 @@
-package com.example.sad
+package com.example.sad.auth
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

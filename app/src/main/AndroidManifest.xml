@@ -28,7 +28,7 @@
         </activity>
 
         <activity
-            android:name=".HomeActivity"
+            android:name=".HomeActivity.HomeActivity"
             android:exported="true"
             android:theme="@style/Theme.SAD">
             <intent-filter>
