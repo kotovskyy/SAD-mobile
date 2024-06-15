@@ -50,6 +50,8 @@ android {
 }
 
 dependencies {
+    val accompanistVersion = "0.35.1-alpha"
+    implementation ("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     val lifecycle_version = "2.8.2"
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
