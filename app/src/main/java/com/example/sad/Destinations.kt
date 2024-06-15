@@ -2,12 +2,12 @@ package com.example.sad
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
+import com.example.sad.NewDevice.AddDeviceScreen
 import com.example.sad.HomeActivity.DevicesScreen
 import com.example.sad.HomeActivity.HomeScreen
 import com.example.sad.HomeActivity.ProfileScreen
 import com.example.sad.LoginSignup.LoginScreen
 import com.example.sad.LoginSignup.SignupScreen
-import com.example.sad.api.devices.DeviceDataScreen
 
 interface Destination{
     val route: String
@@ -46,5 +46,12 @@ object Devices : Destination {
     override val route = "devices"
     override val screen: @Composable (NavController) -> Unit = {
         DevicesScreen(navController = it)
+    }
+}
+
+object AddDevice : Destination {
+    override val route = "addDevice"
+    override val screen: @Composable (NavController) -> Unit = {
+        AddDeviceScreen(navController = it)
     }
 }

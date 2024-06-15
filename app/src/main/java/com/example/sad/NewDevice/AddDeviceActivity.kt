@@ -1,6 +1,5 @@
-package com.example.sad
+package com.example.sad.NewDevice
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,28 +8,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.sad.HomeActivity.HomeActivity
-import com.example.sad.api.auth.SecureStorage
+import com.example.sad.AddDevice
 import com.example.sad.ui.theme.SADTheme
 
-const val BACKEND_ROOT_URL = "http://192.168.1.106:8000"
-
-class MainActivity : ComponentActivity() {
+class AddDeviceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Check if the token exists and is valid
-        val token = SecureStorage.getToken(this)
-        if (!token.isNullOrEmpty()) {
-            // token found or token is invalid, go to login
-            startActivity(Intent(this, HomeActivity::class.java))
-            finish()
-        }
-
         setContent {
             SADTheme {
                 // A surface container using the 'background' color from the theme
@@ -38,7 +24,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation()
+                    AddDeviceNavigation()
                 }
             }
         }
@@ -46,20 +32,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation(){
+fun AddDeviceNavigation(){
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Login.route){
-        composable(route = Login.route){
-            Login.screen(navController)
+    NavHost(navController = navController, startDestination = AddDevice.route){
+        composable(AddDevice.route){
+            AddDevice.screen(navController)
         }
-        composable(route = Signup.route){
-            Signup.screen(navController)
-        }
-    }
-}
-
-fun NavController.navigateSingleOnTop(route: String){
-    this.navigate(route) {
-        launchSingleTop = true
     }
 }

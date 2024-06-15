@@ -59,10 +59,9 @@ class DevicesViewModel(token: String?) : ViewModel() {
 
     init {
         api = DevicesRetrofitInstance.createApi(token = token)
-        fetchDevices()
     }
 
-    private fun fetchDevices() {
+    fun fetchDevices() {
         api?.getAllDevices()?.enqueue(object : retrofit2.Callback<List<Device>> {
             override fun onResponse(call: retrofit2.Call<List<Device>>, response: retrofit2.Response<List<Device>>) {
                 if (response.isSuccessful) {

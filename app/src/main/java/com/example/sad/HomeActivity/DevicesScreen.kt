@@ -1,5 +1,6 @@
 package com.example.sad.HomeActivity
 
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
@@ -24,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.sad.NewDevice.AddDeviceActivity
 import com.example.sad.api.auth.SecureStorage
 import com.example.sad.api.devices.DeviceData
 import com.example.sad.navigateSingleOnTop
@@ -40,6 +43,9 @@ fun DevicesScreen(navController: NavController){
     val context = LocalContext.current
     val token = SecureStorage.getToken(context)
     val viewModel: DevicesViewModel = viewModel(factory = DevicesViewModelFactory(token))
+    LaunchedEffect(Unit) {
+        viewModel.fetchDevices()
+    }
     val devices = viewModel.devices.collectAsState()
 
     Scaffold(
@@ -50,7 +56,8 @@ fun DevicesScreen(navController: NavController){
                 shape = CircleShape,
 
                 onClick = {
-
+                    val intent = Intent(context, AddDeviceActivity::class.java)
+                    context.startActivity(intent)
                 }
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "")

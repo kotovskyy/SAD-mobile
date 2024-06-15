@@ -46,7 +46,10 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
     val token = SecureStorage.getToken(context)
     val viewModel: DevicesViewModel = viewModel(factory = DevicesViewModelFactory(token))
     val device = viewModel.devices.collectAsState().value.find { it.id == deviceId }
-    viewModel.fetchDeviceMeasurements(deviceId)
+    LaunchedEffect(deviceId) {
+        viewModel.fetchDeviceMeasurements(deviceId)
+    }
+//    viewModel.fetchDeviceMeasurements(deviceId)
     val measurements = viewModel.deviceMeasurements.collectAsState().value
 
 

@@ -24,6 +24,7 @@ object DeviceSettigns : DeviceDestination {
     }
 }
 
+
 //object DeviceSettings : DeviceDestination {
 //    override val route = "device_settings/{deviceId}"
 //    override val screen: @Composable (NavController, String?) -> Unit = { navController, deviceId ->
