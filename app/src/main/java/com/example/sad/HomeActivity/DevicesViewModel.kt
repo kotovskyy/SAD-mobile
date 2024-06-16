@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.sad.api.auth.SecureStorage
 import com.example.sad.api.devices.AuthInterceptor
+import com.example.sad.api.devices.DeleteDeviceResponse
 import com.example.sad.api.devices.DevicesApiService
 import com.example.sad.api.devices.DevicesRetrofitInstance
 import com.example.sad.api.devices.SettingUpdateRequest
@@ -104,6 +105,22 @@ class DevicesViewModel(token: String?) : ViewModel() {
             override fun onFailure(call: retrofit2.Call<List<Device>>, t: Throwable) {
                 Log.e("Device Fetch", "Network error: ${t.message}")
                 isRefreshing = false
+            }
+        })
+    }
+
+    fun deleteDevice(deviceId: Int){
+        api?.deleteDevice(deviceId)?.enqueue(object : retrofit2.Callback<DeleteDeviceResponse> {
+            override fun onResponse(call: retrofit2.Call<DeleteDeviceResponse>, response: retrofit2.Response<DeleteDeviceResponse>) {
+                if (response.isSuccessful) {
+                    Log.e("Device delete", "Successfully deleted device")
+                } else {
+                    Log.e("Device Fetch", "Failed to fetch devices: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<DeleteDeviceResponse>, t: Throwable) {
+                Log.e("Device delete", "Network error: ${t.message}")
             }
         })
     }
