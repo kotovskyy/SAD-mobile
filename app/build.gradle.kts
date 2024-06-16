@@ -51,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.compose.material:material:1.6.8")
     implementation(libs.androidx.lifecycle.livedata.ktx)
     val lifecycleViewModelComposeVersion = "2.8.2"
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleViewModelComposeVersion")

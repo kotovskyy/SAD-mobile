@@ -3,6 +3,7 @@ package com.example.sad.api.devices
 import androidx.compose.ui.platform.LocalContext
 import com.example.sad.BACKEND_ROOT_URL
 import com.example.sad.HomeActivity.Device
+import com.example.sad.HomeActivity.DeviceSetting
 import com.example.sad.HomeActivity.Measurement
 import com.example.sad.api.auth.AuthApiService
 import com.example.sad.api.auth.SecureStorage
@@ -15,10 +16,15 @@ import retrofit2.http.Body
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.DELETE
+import retrofit2.http.PATCH
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-data class MeasurementsRequest(val device: Int)
+data class SettingUpdateRequest(val value: Float?)
+data class SettingUpdateResponse(val success: Boolean, val message: String)
+
+data class DeleteDeviceResponse(val success: Boolean, val message: String)
 
 class AuthInterceptor(private val token: String?) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -36,8 +42,17 @@ interface DevicesApiService {
     @GET("devices/")
     fun getAllDevices(): Call<List<Device>>
 
+    @DELETE("devices/{device_id}/")
+    fun deleteDevice(@Path("device_id") deviceId: Int): Call<DeleteDeviceResponse>
+
     @GET("measurements/")
     fun getDeviceMeasurements(@Query("device") device: Int): Call<List<Measurement>>
+
+    @GET("settings/")
+    fun getDeviceSettings(@Query("device") device: Int): Call<List<DeviceSetting>>
+
+    @PATCH("settings/{setting_id}/")
+    fun updateDeviceSetting(@Path("setting_id") settingId: Int, @Body settingUpdateRequest: SettingUpdateRequest): Call<SettingUpdateResponse>
 }
 
 object DevicesRetrofitInstance {
