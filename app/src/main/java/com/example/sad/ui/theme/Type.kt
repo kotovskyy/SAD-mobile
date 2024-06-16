@@ -63,16 +63,16 @@ val Typography = Typography(
     ),
     labelMedium = TextStyle(
         fontFamily = Montserrat,
-        fontSize = 24.sp,
+        fontSize = 28.sp,
         fontWeight = FontWeight.Normal,
-        lineHeight = 29.sp,
+        lineHeight = 34.sp,
         letterSpacing = 0.sp
     ),
     labelSmall = TextStyle(
         fontFamily = Montserrat,
-        fontSize = 20.sp,
+        fontSize = 24.sp,
         fontWeight = FontWeight.Normal,
-        lineHeight = 24.sp,
+        lineHeight = 28.sp,
         letterSpacing = 0.5.sp
     ),
 

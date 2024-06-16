@@ -85,7 +85,7 @@ fun DevicesScreen(navController: NavController){
                     context.startActivity(intent)
                 }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "")
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
             }
         }
     ) { innerPadding ->
