@@ -2,6 +2,9 @@ package com.example.sad.HomeActivity
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -54,6 +57,7 @@ class DevicesViewModel(token: String?) : ViewModel() {
     private val _deviceMeasurements = MutableStateFlow<List<Measurement>>(emptyList())
     val devices  = _devices.asStateFlow()
     val deviceMeasurements = _deviceMeasurements.asStateFlow()
+    var isRefreshing by mutableStateOf(false)
 
     private var api: DevicesApiService? = null
 
@@ -62,6 +66,7 @@ class DevicesViewModel(token: String?) : ViewModel() {
     }
 
     fun fetchDevices() {
+        isRefreshing = true
         api?.getAllDevices()?.enqueue(object : retrofit2.Callback<List<Device>> {
             override fun onResponse(call: retrofit2.Call<List<Device>>, response: retrofit2.Response<List<Device>>) {
                 if (response.isSuccessful) {
@@ -70,10 +75,12 @@ class DevicesViewModel(token: String?) : ViewModel() {
                 } else {
                     Log.e("Device Fetch", "Failed to fetch devices: ${response.errorBody()?.string()}")
                 }
+                isRefreshing = false
             }
 
             override fun onFailure(call: retrofit2.Call<List<Device>>, t: Throwable) {
                 Log.e("Device Fetch", "Network error: ${t.message}")
+                isRefreshing = false
             }
         })
     }

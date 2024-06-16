@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.compose.material:material:1.6.8")
     val accompanistVersion = "0.35.1-alpha"
     implementation ("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     val lifecycle_version = "2.8.2"

@@ -6,6 +6,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -20,7 +23,6 @@ class WifiNetworkViewModel(applicationContext: Context) : ViewModel() {
 
 
     private val _wifiSSID = MutableStateFlow<String?>(null)
-
 
     private val context = applicationContext
     val wifiSSID = _wifiSSID.asStateFlow()
