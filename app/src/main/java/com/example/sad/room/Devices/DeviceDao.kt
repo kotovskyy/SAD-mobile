@@ -1,4 +1,4 @@
-package com.example.sad.room
+package com.example.sad.room.Devices
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -7,11 +7,11 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface MeasurementDao {
+interface DeviceDao {
 
     @Query("SELECT * FROM measurements ORDER BY timestamp DESC")
-    fun getAll(): Flow<List<Measurement>>
+    fun getAll(): Flow<List<Device>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(measurements: List<Measurement>)
+    suspend fun insertAll(devices: List<Device>)
 }

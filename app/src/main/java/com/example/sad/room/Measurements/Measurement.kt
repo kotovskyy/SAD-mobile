@@ -1,4 +1,4 @@
-package com.example.sad.room
+package com.example.sad.room.Measurements
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
