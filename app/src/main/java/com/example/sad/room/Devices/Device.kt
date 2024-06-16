@@ -10,5 +10,5 @@ data class Device(
     var name: String,
     var mac_address: String,
     var user: Long,
-    var type: Long
+    var type: Int
 )

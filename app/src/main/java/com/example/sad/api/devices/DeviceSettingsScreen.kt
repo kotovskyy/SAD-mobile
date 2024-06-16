@@ -60,15 +60,16 @@ import com.example.sad.HomeActivity.DevicesViewModelFactory
 import com.example.sad.HomeActivity.HomeTopBar
 import com.example.sad.LoginSignup.BottomNavItem
 import com.example.sad.R
+import com.example.sad.SADApplication
 import com.example.sad.api.auth.SecureStorage
 import com.example.sad.navigateSingleOnTop
 
 
 @Composable
 fun DeviceSettingsScreen(navController: NavController, deviceId: Int) {
-    val context = LocalContext.current
+    val context = LocalContext.current.applicationContext
     val token = SecureStorage.getToken(context)
-    val viewModel: DevicesViewModel = viewModel(factory = DevicesViewModelFactory(token))
+    val viewModel: DevicesViewModel = viewModel(factory = DevicesViewModelFactory(token, context))
     val device = viewModel.devices.collectAsState().value.find { it.id == deviceId }
 
     LaunchedEffect(deviceId) {

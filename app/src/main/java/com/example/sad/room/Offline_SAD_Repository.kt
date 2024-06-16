@@ -16,6 +16,4 @@ class Offline_SAD_Repository(private val measurementDao: MeasurementDao, private
     override suspend fun insertDevices(devices: List<Device>) {
         deviceDao.insertAll(devices)
     }
-
-
 }

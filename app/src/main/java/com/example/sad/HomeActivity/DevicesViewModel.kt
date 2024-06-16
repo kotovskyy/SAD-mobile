@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.sad.SADApplication
 import com.example.sad.api.auth.SecureStorage
 import com.example.sad.api.devices.AuthInterceptor
 import com.example.sad.api.devices.DeleteDeviceResponse
@@ -15,9 +16,11 @@ import com.example.sad.api.devices.DevicesApiService
 import com.example.sad.api.devices.DevicesRetrofitInstance
 import com.example.sad.api.devices.SettingUpdateRequest
 import com.example.sad.api.devices.SettingUpdateResponse
+import com.example.sad.room.SAD_Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -31,7 +34,7 @@ data class Device(
     val name: String,
     val user: Int,
     val mac_address: String,
-    val type: Int?
+    val type: Int
 )
 
 data class Measurement(
@@ -51,18 +54,41 @@ data class DeviceSetting(
 )
 
 
-class DevicesViewModelFactory(private val token: String?) : ViewModelProvider.Factory {
+fun convertApiDeviceToDbDevice(apiDevice: com.example.sad.HomeActivity.Device): com.example.sad.room.Devices.Device {
+    return com.example.sad.room.Devices.Device(
+        id = apiDevice.id.toLong(), // Convert Int to Long if necessary
+        name = apiDevice.name,
+        mac_address = apiDevice.mac_address,
+        user = apiDevice.user.toLong(), // Convert Int to Long if necessary
+        type = apiDevice.type // Handle nullable and conversion
+    )
+}
+
+fun convertDbDeviceToApiDevice(dbDevice: com.example.sad.room.Devices.Device): com.example.sad.HomeActivity.Device {
+    return com.example.sad.HomeActivity.Device(
+        id = dbDevice.id.toInt(),  // Assuming your room uses Long and API uses Int
+        name = dbDevice.name,
+        mac_address = dbDevice.mac_address,
+        user = dbDevice.user.toInt(),
+        type = dbDevice.type  // Handle conversion with null safety
+    )
+}
+
+class DevicesViewModelFactory(private val token: String?, private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(DevicesViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            val time = ZonedDateTime.parse("2024-06-14T21:02:53Z")
-            return DevicesViewModel(token) as T
+            val repository = (context as SADApplication).repository
+            return DevicesViewModel(token, repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 
-class DevicesViewModel(token: String?) : ViewModel() {
+class DevicesViewModel(
+    token: String?,
+    sadRepository: SAD_Repository
+) : ViewModel() {
+    private val repository: SAD_Repository = sadRepository
     private var api: DevicesApiService? = null
     private val _devices = MutableStateFlow<List<Device>>(emptyList())
     private val _deviceMeasurements = MutableStateFlow<List<Measurement>>(emptyList())
@@ -76,6 +102,16 @@ class DevicesViewModel(token: String?) : ViewModel() {
 
     init {
         api = DevicesRetrofitInstance.createApi(token = token)
+        viewModelScope.launch {
+            repository.getAllDevicesStream()
+                .map { list ->
+                    list.map { dbDevice ->
+                        convertDbDeviceToApiDevice(dbDevice)
+                    }
+                }.collect { mappedList ->
+                    _devices.value = mappedList
+                }
+        }
     }
 
     fun updateSettingValue(id: Int, newValue: Float) {
@@ -96,6 +132,14 @@ class DevicesViewModel(token: String?) : ViewModel() {
                 if (response.isSuccessful) {
                     // Update StateFlow with the new list of devices
                     _devices.value = response.body() ?: emptyList()
+                    val dbDevices = _devices.value.map { device ->
+                        convertApiDeviceToDbDevice(device)
+                    }
+                    viewModelScope.launch {
+                        repository.insertDevices(dbDevices)
+                        Log.d("INSERT DEVICES", "Successfully inserted devices")
+                    }
+
                 } else {
                     Log.e("Device Fetch", "Failed to fetch devices: ${response.errorBody()?.string()}")
                 }

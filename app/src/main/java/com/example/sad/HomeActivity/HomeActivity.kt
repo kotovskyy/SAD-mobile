@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,9 +19,12 @@ import com.example.sad.Home
 import com.example.sad.Profile
 import com.example.sad.api.devices.DeviceData
 import com.example.sad.api.devices.DeviceSettigns
+import com.example.sad.room.SAD_DB
+import com.example.sad.room.SAD_ViewModel
 import com.example.sad.ui.theme.SADTheme
 
 class HomeActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
