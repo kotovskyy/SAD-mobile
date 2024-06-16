@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("com.google.devtools.ksp") version "1.9.0-1.0.13"
 }
 
 android {
@@ -50,6 +51,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    val lifecycleViewModelComposeVersion = "2.8.2"
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleViewModelComposeVersion")
     val accompanistVersion = "0.35.1-alpha"
     implementation ("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     val lifecycle_version = "2.8.2"
@@ -70,6 +74,15 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    val room_version = "2.6.1"
+
+    implementation("androidx.room:room-runtime:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+    // To use Kotlin Symbol Processing (KSP)
+    ksp("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+
+    //implementation("androidx.room:room-ktx:${rootProject.extra[room_ersion]}")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
