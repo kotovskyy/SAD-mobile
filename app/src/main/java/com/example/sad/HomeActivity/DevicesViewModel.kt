@@ -44,21 +44,10 @@ data class Measurement(
 data class DeviceSetting(
     val id: Int,
     val type: Int,
-    var value: Float
-) {
-    companion object {
-        private val typeDescriptions = mapOf(
-            1 to "Sleep time",
-            2 to "Wake time",
-            3 to "Temperature"
-        )
-
-        fun getTypeDescription(type: Int): String {
-            return typeDescriptions[type] ?: "Unknown Setting"
-        }
-    }
-    val typeDescription: String get() = getTypeDescription(type)
-}
+    var value: Float,
+    var type_name: String,
+    var unit: String
+)
 
 
 class DevicesViewModelFactory(private val token: String?) : ViewModelProvider.Factory {
@@ -145,6 +134,7 @@ class DevicesViewModel(token: String?) : ViewModel() {
                 if (response.isSuccessful) {
                     // Update StateFlow with the new list of devices
                     _deviceSettings.value = response.body() ?: emptyList()
+                    _deviceSettings.value = _deviceSettings.value.sortedBy { it.type }
                 } else {
                     Log.e("Device Fetch", "Failed to fetch devices: ${response.errorBody()?.string()}")
                 }

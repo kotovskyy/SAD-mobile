@@ -1,24 +1,32 @@
 package com.example.sad.api.devices
 
 import android.app.TimePickerDialog
+import android.util.Log
+import android.widget.TimePicker
 import android.widget.Toast
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedTextField
@@ -37,10 +45,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sad.HomeActivity.DeviceSetting
@@ -102,6 +113,7 @@ fun SettingsForm(settings: List<DeviceSetting>, updateSettings: () -> Unit, upda
     ) {
         settings.forEach(){ setting ->
             var text by remember { mutableStateOf(setting.value.toString()) }
+            Spacer(modifier = Modifier.height(8.dp))
             if (setting.type == 1 || setting.type == 2){
                 TimeSetting(setting, updateSettingValue)
             } else {
@@ -109,16 +121,17 @@ fun SettingsForm(settings: List<DeviceSetting>, updateSettings: () -> Unit, upda
                     value = text,
                     onValueChange = { newText ->
                         text = newText
-                        newText.toFloatOrNull()?.let { validFloat ->
-                            updateSettingValue(setting.id, validFloat)
+                        if (newText.isNotEmpty()){
+                            newText.toIntOrNull()?.let { validInt ->
+                                updateSettingValue(setting.id, validInt.toFloat())
+                            }
                         }
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     label = {
-                    Text(text = setting.typeDescription)
+                    Text(text = "${setting.type_name} (${setting.unit})", style = MaterialTheme.typography.labelLarge)
                 })
             }
-//            Text(text = "${setting.id} | ${setting.typeDescription} | ${setting.value}")
         }
         Button(
             onClick = {
@@ -135,23 +148,49 @@ fun SettingsForm(settings: List<DeviceSetting>, updateSettings: () -> Unit, upda
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeSetting(setting: DeviceSetting, updateSettingValue: (Int, Float) -> Unit) {
-    val hours = (setting.value / 100).toInt()
-    val minutes = (setting.value % 100).toInt()
-    val timePickerState = rememberTimePickerState(initialHour = hours, initialMinute = minutes)
+    val context = LocalContext.current
 
-    LaunchedEffect(timePickerState.hour, timePickerState.minute) {
-        val newTimeValue = timePickerState.hour * 100 + timePickerState.minute
-        if (newTimeValue.toFloat() != setting.value) {
-            updateSettingValue(setting.id, newTimeValue.toFloat())
-        }
+    fun formatTime(timeValue: Float): String {
+        val hours = (timeValue.toInt() / 100).toString().padStart(2, '0')
+        val minutes = (timeValue.toInt() % 100).toString().padStart(2, '0')
+        return "$hours:$minutes"
     }
 
-    Column(modifier = Modifier.padding(8.dp)) {
-        Text(setting.typeDescription, style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(7.dp))
-        TimeInput(state = timePickerState)
+    var timeDisplay by remember { mutableStateOf(formatTime(setting.value)) }
+
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        OutlinedTextField(
+            value = timeDisplay,
+            onValueChange = {},
+            readOnly = true,
+            label = {
+                Text(text = setting.type_name, style = MaterialTheme.typography.labelLarge)
+            },
+            trailingIcon = {
+                IconButton(onClick = {
+                    val hours = setting.value.toInt() / 100
+                    val minutes = setting.value.toInt() % 100
+                    TimePickerDialog(context, { _: TimePicker, hourOfDay: Int, minute: Int ->
+                        val newTimeValue = hourOfDay * 100 + minute
+                        if (newTimeValue.toFloat() != setting.value) {
+                            updateSettingValue(setting.id, newTimeValue.toFloat())
+                            timeDisplay = formatTime(newTimeValue.toFloat())
+                        }
+                    }, hours, minutes, true).show()
+                }) {
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = "Edit Time",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        )
     }
 }
