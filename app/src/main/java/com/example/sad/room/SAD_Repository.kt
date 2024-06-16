@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface SAD_Repository {
-    fun getAllMeasurementsStream(): Flow<List<Measurement>>
+    fun getAllMeasurementsStream(deviceId: Int): Flow<List<Measurement>>
     suspend fun insertMeasurements(measurements: List<Measurement>)
 
     suspend fun insertDevices(device: List<Device>)

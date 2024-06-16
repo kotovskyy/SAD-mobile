@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MeasurementDao {
 
-    @Query("SELECT * FROM measurements ORDER BY timestamp DESC")
-    fun getAll(): Flow<List<Measurement>>
+    @Query("SELECT * FROM measurements WHERE device = :device_id ORDER BY timestamp DESC")
+    fun getAll(device_id: Int): Flow<List<Measurement>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(measurements: List<Measurement>)

@@ -27,7 +27,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 import java.sql.Timestamp
+import java.time.Instant
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 data class Device(
     val id: Int,
@@ -53,6 +56,15 @@ data class DeviceSetting(
     var unit: String
 )
 
+fun parseTimestampToMillis(timestamp: String): Long {
+    return Instant.parse(timestamp).toEpochMilli()
+}
+
+fun formatMillisToTimestamp(millis: Long): String {
+    val instant = Instant.ofEpochMilli(millis)
+    val formatter = DateTimeFormatter.ISO_INSTANT
+    return formatter.format(instant)
+}
 
 fun convertApiDeviceToDbDevice(apiDevice: com.example.sad.HomeActivity.Device): com.example.sad.room.Devices.Device {
     return com.example.sad.room.Devices.Device(
@@ -71,6 +83,28 @@ fun convertDbDeviceToApiDevice(dbDevice: com.example.sad.room.Devices.Device): c
         mac_address = dbDevice.mac_address,
         user = dbDevice.user.toInt(),
         type = dbDevice.type  // Handle conversion with null safety
+    )
+}
+
+// Convert from Network model to Room model
+fun com.example.sad.HomeActivity.Measurement.toDbModel(): com.example.sad.room.Measurements.Measurement {
+    return com.example.sad.room.Measurements.Measurement(
+        id = this.id.toLong(),
+        timestamp = parseTimestampToMillis(this.timestamp), // Assuming timestamp is a String you need to convert to Long
+        value = this.value,
+        device = this.device.toLong(),
+        type = this.type
+    )
+}
+
+// Convert from Room model to Network model
+fun com.example.sad.room.Measurements.Measurement.toApiModel(): com.example.sad.HomeActivity.Measurement {
+    return com.example.sad.HomeActivity.Measurement(
+        id = this.id.toInt(),
+        timestamp = formatMillisToTimestamp(this.timestamp), // Converting back to String if necessary
+        value = this.value,
+        device = this.device.toInt(),
+        type = this.type
     )
 }
 
@@ -170,12 +204,26 @@ class DevicesViewModel(
     }
 
     fun fetchDeviceMeasurements(deviceId: Int) {
+        viewModelScope.launch {
+            repository.getAllMeasurementsStream(deviceId)
+                .map { list ->
+                    list.map { it.toApiModel() }
+                }.collect { mappedList ->
+                    _deviceMeasurements.value = mappedList
+                }
+        }
+
         isRefreshing = true
         api?.getDeviceMeasurements(deviceId)?.enqueue(object : retrofit2.Callback<List<Measurement>> {
             override fun onResponse(call: retrofit2.Call<List<Measurement>>, response: retrofit2.Response<List<Measurement>>) {
                 if (response.isSuccessful) {
                     // Update StateFlow with the new list of devices
                     _deviceMeasurements.value = response.body() ?: emptyList()
+                    val measurements = _deviceMeasurements.value.map { it.toDbModel() }
+                    viewModelScope.launch {
+                        repository.insertMeasurements(measurements)
+                        Log.d("INSERT MEASUREMENTS", "Successfully inserted measurements")
+                    }
                 } else {
                     Log.e("Device Fetch", "Failed to fetch devices: ${response.errorBody()?.string()}")
                 }

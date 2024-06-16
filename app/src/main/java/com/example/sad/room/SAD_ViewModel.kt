@@ -10,7 +10,7 @@ import com.example.sad.room.Measurements.Measurement
 import kotlinx.coroutines.launch
 
 class SAD_ViewModel (private val repository: SAD_Repository) : ViewModel() {
-    val allMeasurements: LiveData<List<Measurement>> = repository.getAllMeasurementsStream().asLiveData()
+//    val allMeasurements: LiveData<List<Measurement>> = repository.getAllMeasurementsStream().asLiveData()
     val allDevices: LiveData<List<Device>> = repository.getAllDevicesStream().asLiveData()
 
     fun fetchMeasurementsFromServer() {
