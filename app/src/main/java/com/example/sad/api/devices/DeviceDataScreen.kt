@@ -1,5 +1,6 @@
 package com.example.sad.api.devices
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -105,6 +108,31 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
 
 @Composable
 fun MeasurementTable(measurements: List<Measurement>, state: LazyListState) {
+    val distinctTypes = measurements.distinctBy { it.type }
+    val colNames = distinctTypes.map {
+        it.type_name + " " +
+                when (it.unit) {
+                    "celsius" -> {
+                        "(°C)"
+                    }
+                    "percent" -> {
+                        "(%)"
+                    }
+                    "fahrenheit" -> {
+                        "(°F)"
+                    }
+                    else -> {
+                        "(${it.unit})"
+                    }
+                }
+    }
+    var measurementsGrouped = emptyList<List<Measurement>>()
+    try {
+        measurementsGrouped = measurements.chunked(distinctTypes.count())
+    } catch (e: Exception){
+        // nothing here for now
+    }
+
     LazyColumn(state = state) {
         item {
             // Define the header of the table
@@ -115,32 +143,35 @@ fun MeasurementTable(measurements: List<Measurement>, state: LazyListState) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Row(
-                    modifier = Modifier.weight(0.4f)
+                    modifier = Modifier.weight(1f)
                 ){
-                    Text("Timestamp", style = MaterialTheme.typography.titleLarge)
+                    Text("Time", style = MaterialTheme.typography.titleLarge)
                 }
-                Row(
-                    modifier = Modifier.weight(0.2f)
-                ){
-                    Text("Value", style = MaterialTheme.typography.titleLarge)
-                }
-                Row(
-                    modifier = Modifier.weight(0.2f)
-                ){
-                    Text("Type", style = MaterialTheme.typography.titleLarge)
+                colNames.forEach { colName ->
+                    Log.d("COLNAME", colName)
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ){
+                        Text(
+                            colName.replaceFirstChar {
+                                colName[0].uppercaseChar()
+                            },
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
                 }
             }
         }
-        items(measurements) { measurement ->
-            MeasurementRow(measurement)
+        items(measurementsGrouped) { measurementGroup ->
+            MeasurementRow(measurementGroup)
         }
     }
 }
 
 @Composable
-fun MeasurementRow(measurement: Measurement) {
-    val formatter = DateTimeFormatter.ofPattern("dd MMM, HH:mm:ss")
-    val zonedDateTime = ZonedDateTime.parse(measurement.timestamp)
+fun MeasurementRow(measurementGroup: List<Measurement>) {
+    val formatter = DateTimeFormatter.ofPattern("dd MMM, HH:mm")
+    val zonedDateTime = ZonedDateTime.parse(measurementGroup[0].timestamp)
     val formattedTimestamp = formatter.format(zonedDateTime)
 
     Row(
@@ -151,19 +182,16 @@ fun MeasurementRow(measurement: Measurement) {
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         Row(
-            modifier = Modifier.weight(0.4f)
+            modifier = Modifier.weight(1f)
         ){
             Text(formattedTimestamp, style = MaterialTheme.typography.bodyLarge)
         }
-        Row(
-            modifier = Modifier.weight(0.2f)
-        ){
-            Text("${measurement.value}", style = MaterialTheme.typography.bodyLarge)
-        }
-        Row(
-            modifier = Modifier.weight(0.2f)
-        ){
-            Text("${measurement.type}", style = MaterialTheme.typography.bodyLarge)
+        measurementGroup.forEach { measurement ->
+            Row(
+                modifier = Modifier.weight(1f)
+            ){
+                Text("${measurement.value}", style = MaterialTheme.typography.bodyLarge)
+            }
         }
     }
 }

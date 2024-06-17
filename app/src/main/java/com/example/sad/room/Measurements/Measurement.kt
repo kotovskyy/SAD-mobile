@@ -10,5 +10,7 @@ data class Measurement(
     var timestamp: Long,
     var value: Float,
     var device: Long,
-    var type: Int
+    var type: Int,
+    var type_name: String,
+    var unit: String
 )

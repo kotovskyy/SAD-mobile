@@ -45,7 +45,9 @@ data class Measurement(
     val timestamp: String,
     val value: Float,
     val device: Int,
-    val type: Int
+    val type: Int,
+    val type_name: String,
+    val unit: String
 )
 
 data class DeviceSetting(
@@ -93,18 +95,22 @@ fun com.example.sad.HomeActivity.Measurement.toDbModel(): com.example.sad.room.M
         timestamp = parseTimestampToMillis(this.timestamp), // Assuming timestamp is a String you need to convert to Long
         value = this.value,
         device = this.device.toLong(),
-        type = this.type
+        type = this.type,
+        type_name = this.type_name,
+        unit = this.unit
     )
 }
 
-// Convert from Room model to Network model
+// Convert from Room model to API model
 fun com.example.sad.room.Measurements.Measurement.toApiModel(): com.example.sad.HomeActivity.Measurement {
     return com.example.sad.HomeActivity.Measurement(
         id = this.id.toInt(),
         timestamp = formatMillisToTimestamp(this.timestamp), // Converting back to String if necessary
         value = this.value,
         device = this.device.toInt(),
-        type = this.type
+        type = this.type,
+        type_name = this.type_name,
+        unit = this.unit
     )
 }
 
@@ -219,6 +225,9 @@ class DevicesViewModel(
                 if (response.isSuccessful) {
                     // Update StateFlow with the new list of devices
                     _deviceMeasurements.value = response.body() ?: emptyList()
+                    _deviceMeasurements.value = _deviceMeasurements.value.sortedBy { m ->
+                        m.timestamp
+                    }
                     val measurements = _deviceMeasurements.value.map { it.toDbModel() }
                     viewModelScope.launch {
                         repository.insertMeasurements(measurements)

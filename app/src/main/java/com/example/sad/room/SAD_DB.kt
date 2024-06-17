@@ -12,7 +12,7 @@ import com.example.sad.room.Devices.DeviceDao
 
 
 
-@Database(entities = [Measurement::class, Device::class], version = 2, exportSchema = false)
+@Database(entities = [Measurement::class, Device::class], version = 3, exportSchema = false)
 abstract class SAD_DB : RoomDatabase() {
 
     abstract fun getMeasurementDao() : MeasurementDao
