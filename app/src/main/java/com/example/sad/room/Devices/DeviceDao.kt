@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+import retrofit2.http.DELETE
 
 @Dao
 interface DeviceDao {
@@ -14,4 +15,7 @@ interface DeviceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(devices: List<Device>)
+
+    @Query("DELETE FROM devices")
+    suspend fun deleteAllDevices()
 }

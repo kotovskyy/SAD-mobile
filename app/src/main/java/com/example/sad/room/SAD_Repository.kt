@@ -10,4 +10,6 @@ interface SAD_Repository {
 
     suspend fun insertDevices(device: List<Device>)
     fun getAllDevicesStream(): Flow<List<Device>>
+
+    suspend fun clearAllData()
 }

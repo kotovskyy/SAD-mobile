@@ -142,16 +142,6 @@ class DevicesViewModel(
 
     init {
         api = DevicesRetrofitInstance.createApi(token = token)
-        viewModelScope.launch {
-            repository.getAllDevicesStream()
-                .map { list ->
-                    list.map { dbDevice ->
-                        convertDbDeviceToApiDevice(dbDevice)
-                    }
-                }.collect { mappedList ->
-                    _devices.value = mappedList
-                }
-        }
     }
 
     fun updateSettingValue(id: Int, newValue: Float) {
@@ -179,7 +169,6 @@ class DevicesViewModel(
                         repository.insertDevices(dbDevices)
                         Log.d("INSERT DEVICES", "Successfully inserted devices")
                     }
-
                 } else {
                     Log.e("Device Fetch", "Failed to fetch devices: ${response.errorBody()?.string()}")
                 }
@@ -191,6 +180,16 @@ class DevicesViewModel(
                 isRefreshing = false
             }
         })
+        viewModelScope.launch {
+            repository.getAllDevicesStream()
+                .map { list ->
+                    list.map { dbDevice ->
+                        convertDbDeviceToApiDevice(dbDevice)
+                    }
+                }.collect { mappedList ->
+                    _devices.value = mappedList
+                }
+        }
     }
 
     fun deleteDevice(deviceId: Int){
@@ -210,15 +209,6 @@ class DevicesViewModel(
     }
 
     fun fetchDeviceMeasurements(deviceId: Int) {
-        viewModelScope.launch {
-            repository.getAllMeasurementsStream(deviceId)
-                .map { list ->
-                    list.map { it.toApiModel() }
-                }.collect { mappedList ->
-                    _deviceMeasurements.value = mappedList
-                }
-        }
-
         isRefreshing = true
         api?.getDeviceMeasurements(deviceId)?.enqueue(object : retrofit2.Callback<List<Measurement>> {
             override fun onResponse(call: retrofit2.Call<List<Measurement>>, response: retrofit2.Response<List<Measurement>>) {
@@ -244,6 +234,14 @@ class DevicesViewModel(
                 isRefreshing = false
             }
         })
+        viewModelScope.launch {
+            repository.getAllMeasurementsStream(deviceId)
+                .map { list ->
+                    list.map { it.toApiModel() }
+                }.collect { mappedList ->
+                    _deviceMeasurements.value = mappedList
+                }
+        }
     }
 
     fun fetchDeviceSettings(deviceId: Int){

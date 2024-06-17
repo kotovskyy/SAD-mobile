@@ -11,17 +11,23 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sad.MainActivity
+import com.example.sad.SADApplication
 import com.example.sad.api.auth.SecureStorage
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(navController: NavController){
     val context = LocalContext.current
+    val application = context.applicationContext
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = { HomeTopBar("Profile") },
@@ -38,6 +44,10 @@ fun ProfileScreen(navController: NavController){
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedButton(
                 onClick = {
+                    coroutineScope.launch {
+                        // remove all data from the database
+                        (application as SADApplication).repository.clearAllData()
+                    }
                     // Clear the stored token
                     SecureStorage.clearToken(context)
                     // Navigate back to the login screen

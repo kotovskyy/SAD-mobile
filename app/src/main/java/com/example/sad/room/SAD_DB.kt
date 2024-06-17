@@ -24,7 +24,7 @@ abstract class SAD_DB : RoomDatabase() {
 
         fun getDB(context: Context): SAD_DB {
             return INSTANCE ?: synchronized(this) {
-                Room.databaseBuilder(context, SAD_DB::class.java, "measurement_db")
+                Room.databaseBuilder(context, SAD_DB::class.java, "sad_db")
                     .build()
                     .also { INSTANCE = it }
             }
