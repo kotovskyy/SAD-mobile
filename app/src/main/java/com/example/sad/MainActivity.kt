@@ -60,6 +60,10 @@ fun AppNavigation(){
 
 fun NavController.navigateSingleOnTop(route: String){
     this.navigate(route) {
+        popUpTo(route) {
+            inclusive = true  // Remove the last instance of the destination
+        }
         launchSingleTop = true
+
     }
 }
