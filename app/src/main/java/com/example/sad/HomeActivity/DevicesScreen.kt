@@ -62,10 +62,10 @@ import com.example.sad.room.Offline_SAD_Repository
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DevicesScreen(navController: NavController){
-    val context = LocalContext.current.applicationContext
+    val context = LocalContext.current
     val token = SecureStorage.getToken(context)
     val viewModel: DevicesViewModel = viewModel(
-        factory = DevicesViewModelFactory(token, context)
+        factory = DevicesViewModelFactory(token, context.applicationContext)
     )
     val devicesListState = rememberLazyListState()
     val isTopOfList by remember {
