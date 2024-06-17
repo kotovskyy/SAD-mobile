@@ -82,7 +82,8 @@ fun AddDeviceScreen(navController: NavController){
         ) {
             if (wifiSSID != "ESP32"){
                 Text("Add new device instructions:", style = MaterialTheme.typography.titleLarge)
-                Text("1) Turn on Location while adding a new device")
+                Text("1) Turn on LOCATION while adding a new device")
+                Text("2) Turn off CELLULAR DATA while adding a new device")
                 Text("2) Open Wi-Fi settings")
                 Text("3) Find network with name \"ESP32\"")
                 Text("4) Connect to the network")
