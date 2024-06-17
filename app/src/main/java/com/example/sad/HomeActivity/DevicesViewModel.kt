@@ -215,7 +215,7 @@ class DevicesViewModel(
                 if (response.isSuccessful) {
                     // Update StateFlow with the new list of devices
                     _deviceMeasurements.value = response.body() ?: emptyList()
-                    _deviceMeasurements.value = _deviceMeasurements.value.sortedBy { m ->
+                    _deviceMeasurements.value = _deviceMeasurements.value.sortedByDescending { m ->
                         m.timestamp
                     }
                     val measurements = _deviceMeasurements.value.map { it.toDbModel() }
