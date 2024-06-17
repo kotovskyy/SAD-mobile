@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -63,14 +64,18 @@ fun SignupForm(context: Context, navController: NavController){
             .fillMaxSize()
     ) {
         OutlinedTextField(value = username, onValueChange = {username = it}, placeholder = {
-            Text("Your name")
+            Text(
+                "Your name",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.outline
+                )
         })
         Spacer(modifier = Modifier.height(10.dp))
         EmailField(email = email, onEmailChange = { email = it })
         Spacer(modifier = Modifier.height(10.dp))
         PasswordField(placeholder = "Password", password = password, onPasswordChange = { password = it })
         Spacer(modifier = Modifier.height(10.dp))
-        PasswordField(placeholder = "Confirm password", password = confirmPassword, onPasswordChange = { confirmPassword = it })
+        PasswordField(placeholder = "Password again", password = confirmPassword, onPasswordChange = { confirmPassword = it })
         Spacer(modifier = Modifier.height(10.dp))
         SignupButton(context, username, email, password, confirmPassword, navController)
     }
