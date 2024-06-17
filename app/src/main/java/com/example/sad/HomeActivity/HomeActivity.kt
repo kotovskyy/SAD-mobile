@@ -19,8 +19,6 @@ import com.example.sad.Home
 import com.example.sad.Profile
 import com.example.sad.api.devices.DeviceData
 import com.example.sad.api.devices.DeviceSettigns
-import com.example.sad.room.SAD_DB
-import com.example.sad.room.SAD_ViewModel
 import com.example.sad.ui.theme.SADTheme
 
 class HomeActivity : ComponentActivity() {
