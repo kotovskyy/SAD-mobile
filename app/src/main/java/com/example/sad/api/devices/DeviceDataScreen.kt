@@ -186,7 +186,7 @@ fun MeasurementRow(measurementGroup: List<Measurement>) {
         ){
             Text(formattedTimestamp, style = MaterialTheme.typography.bodyLarge)
         }
-        measurementGroup.forEach { measurement ->
+        measurementGroup.sortedBy { it.type }.forEach { measurement ->
             Row(
                 modifier = Modifier.weight(1f)
             ){

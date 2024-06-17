@@ -84,11 +84,11 @@ fun AddDeviceScreen(navController: NavController){
                 Text("Add new device instructions:", style = MaterialTheme.typography.titleLarge)
                 Text("1) Turn on LOCATION while adding a new device")
                 Text("2) Turn off CELLULAR DATA while adding a new device")
-                Text("2) Open Wi-Fi settings")
-                Text("3) Find network with name \"ESP32\"")
-                Text("4) Connect to the network")
-                Text("5) Enter the password: \"password\"")
-                Text("6) Get back to this screen")
+                Text("3) Open Wi-Fi settings")
+                Text("4) Find network with name \"ESP32\"")
+                Text("5) Connect to the network")
+                Text("6) Enter the password: \"password\"")
+                Text("7) Get back to this screen")
                 OutlinedButton(onClick = { viewModel.fetchCurrentWifiSSID() } ) {
                     Text("Refresh")
                 }
