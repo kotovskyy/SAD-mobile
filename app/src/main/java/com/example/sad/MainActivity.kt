@@ -17,7 +17,7 @@ import com.example.sad.HomeActivity.HomeActivity
 import com.example.sad.api.auth.SecureStorage
 import com.example.sad.ui.theme.SADTheme
 
-const val BACKEND_ROOT_URL = "http://192.168.1.106:8000"
+const val BACKEND_ROOT_URL = "https://sad-app.azurewebsites.net/"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
