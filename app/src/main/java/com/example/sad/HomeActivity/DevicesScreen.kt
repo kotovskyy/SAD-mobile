@@ -52,12 +52,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.sad.LoginSignup.BottomNavigationBar
 import com.example.sad.NewDevice.AddDeviceActivity
 import com.example.sad.SADApplication
 import com.example.sad.api.auth.SecureStorage
 import com.example.sad.api.devices.DeviceData
 import com.example.sad.navigateSingleOnTop
 import com.example.sad.room.Offline_SAD_Repository
+import com.example.sad.ui.utils.homeNavItems
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -88,7 +90,7 @@ fun DevicesScreen(navController: NavController){
 
     Scaffold(
         topBar = { HomeTopBar("Devices") },
-        bottomBar = { HomeBottomNavigationBar(navController = navController, selectedItem = "devices") },
+        bottomBar = { BottomNavigationBar(navController,"devices", homeNavItems) },
         floatingActionButton = {
             FloatingActionButton(
                 shape = CircleShape,

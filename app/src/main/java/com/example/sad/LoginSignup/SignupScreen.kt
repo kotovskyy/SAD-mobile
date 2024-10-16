@@ -31,6 +31,7 @@ import com.example.sad.api.auth.AuthRetrofitInstance
 import com.example.sad.api.auth.SignupRequest
 import com.example.sad.api.auth.SignupResponse
 import com.example.sad.navigateSingleOnTop
+import com.example.sad.ui.utils.authNavItems
 
 @Composable
 fun SignupScreen(navController: NavController){
@@ -38,7 +39,7 @@ fun SignupScreen(navController: NavController){
 
     Scaffold(
         topBar = { MainTopAppBar(title = "Sign up") },
-        bottomBar = { MainBottomNavigationBar(navController = navController, selectedItem = "signup") }
+        bottomBar = { BottomNavigationBar(navController, "signup", authNavItems) }
     ) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

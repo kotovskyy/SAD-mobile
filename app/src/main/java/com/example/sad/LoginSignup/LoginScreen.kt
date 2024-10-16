@@ -51,6 +51,13 @@ import com.example.sad.api.auth.LoginResponse
 import com.example.sad.api.auth.AuthRetrofitInstance
 import com.example.sad.api.auth.SecureStorage
 import com.example.sad.navigateSingleOnTop
+import com.example.sad.ui.utils.authNavItems
+
+data class BottomNavItem(
+    val title: String,
+    @DrawableRes var iconId: Int,
+    val route: String
+)
 
 @Composable
 fun LoginScreen(navController: NavController){
@@ -58,7 +65,7 @@ fun LoginScreen(navController: NavController){
 
     Scaffold(
         topBar = { MainTopAppBar(title = "Login") },
-        bottomBar = { MainBottomNavigationBar(navController = navController, selectedItem = "login") }
+        bottomBar = { BottomNavigationBar(navController,"login", authNavItems) }
     ) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -84,35 +91,24 @@ fun MainTopAppBar(title: String) {
     )
 }
 
-data class BottomNavItem(
-    val title: String,
-    @DrawableRes var iconId: Int,
-    val route: String
-)
-
 @Composable
-fun MainBottomNavigationBar(navController: NavController, selectedItem: String) {
-
-    val bottomNavItems = listOf(
-        BottomNavItem(
-            title = "Login",
-            iconId = R.drawable.login_24,
-            route = "login"
-        ),
-        BottomNavItem(
-            title = "SignUp",
-            iconId = R.drawable.signup_24,
-            route = "signup"
-        )
-    )
-
+fun BottomNavigationBar(
+    navController: NavController,
+    selectedItem: String,
+    items: List<BottomNavItem>
+) {
     BottomAppBar {
-        bottomNavItems.forEach { item ->
+        items.forEach { item ->
             NavigationBarItem(
                 icon = {
-                    Icon(painter = painterResource(id = item.iconId), contentDescription = item.title)
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        Icon(painter = painterResource(id = item.iconId), contentDescription = item.title)
+                        Text(item.title)
+                    }
                },
-                label = { Text(item.title) },
                 selected = selectedItem == item.route,
                 onClick = {
                     navController.navigateSingleOnTop(item.route)

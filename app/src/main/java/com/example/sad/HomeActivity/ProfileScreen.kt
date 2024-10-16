@@ -17,9 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.sad.LoginSignup.BottomNavigationBar
 import com.example.sad.MainActivity
 import com.example.sad.SADApplication
 import com.example.sad.api.auth.SecureStorage
+import com.example.sad.ui.utils.homeNavItems
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -31,7 +33,7 @@ fun ProfileScreen(navController: NavController){
 
     Scaffold(
         topBar = { HomeTopBar("Profile") },
-        bottomBar = { HomeBottomNavigationBar(navController = navController, selectedItem = "profile") }
+        bottomBar = { BottomNavigationBar(navController, "profile", homeNavItems) }
     ) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
