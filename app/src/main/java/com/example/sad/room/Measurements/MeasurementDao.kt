@@ -17,4 +17,7 @@ interface MeasurementDao {
 
     @Query("DELETE FROM measurements")
     suspend fun deleteAllMeasurements()
+
+    @Query("DELETE FROM measurements WHERE device = :deviceId")
+    suspend fun deleteAllDeviceMeasurements(deviceId: Long)
 }

@@ -12,4 +12,5 @@ interface SAD_Repository {
     fun getAllDevicesStream(): Flow<List<Device>>
 
     suspend fun clearAllData()
+    suspend fun deleteDeviceById(deviceId: Long)
 }

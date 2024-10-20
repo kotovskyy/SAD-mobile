@@ -22,4 +22,9 @@ class Offline_SAD_Repository(private val measurementDao: MeasurementDao, private
         deviceDao.deleteAllDevices()
         measurementDao.deleteAllMeasurements()
     }
+
+    override suspend fun deleteDeviceById(deviceId: Long) {
+        deviceDao.deleteDeviceById(deviceId)
+        measurementDao.deleteAllDeviceMeasurements(deviceId)
+    }
 }
