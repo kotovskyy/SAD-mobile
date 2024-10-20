@@ -120,7 +120,7 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                if (shownChart == "temperature")
+                if (shownChart == "Temperature")
                 {
                     val yData = measurements.filter{ it.type_name == shownChart}.sortedBy { parseTimestampToMillis(it.timestamp) }
                     val xData = yData.map { it.timestamp }
@@ -187,7 +187,9 @@ fun MeasurementTable(measurements: List<Measurement>, state: LazyListState, onTi
                         modifier = Modifier.weight(1f)
                     ){
                         TextButton(onClick = {
-                            onTitleClick(colName)
+                            val clippedColName = colName.subSequence(0, colName.indexOfFirst { it == ' ' })
+                            Log.d("CLICKED TABLE", "COLNAME: $colName; CLIPPED: $clippedColName")
+                            onTitleClick(clippedColName.toString())
                         }) {
                             Text(
                                 colName.replaceFirstChar {
