@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -60,6 +61,8 @@ import com.example.sad.api.devices.DeviceData
 import com.example.sad.navigateSingleOnTop
 import com.example.sad.room.Offline_SAD_Repository
 import com.example.sad.ui.utils.homeNavItems
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -79,14 +82,15 @@ fun DevicesScreen(navController: NavController){
         refreshing = viewModel.isRefreshing,
         onRefresh = {
             if (isTopOfList){
-                viewModel.fetchDevices()
+                viewModel.fetchDevices(context)
             }
         }
     )
     LaunchedEffect(Unit) {
-        viewModel.fetchDevices()
+        viewModel.fetchDevices(context)
     }
     val devices = viewModel.devices.collectAsState()
+    val latestMeasurements = viewModel.latestMeasurements
 
     Scaffold(
         topBar = { HomeTopBar("Devices") },
@@ -119,6 +123,7 @@ fun DevicesScreen(navController: NavController){
             ) {
                 DevicesList(
                     devices = devices.value,
+                    latestMeasurements = latestMeasurements,
                     navController,
                     devicesListState,
                     deleteDevice = { deviceId ->
@@ -136,19 +141,26 @@ fun DevicesScreen(navController: NavController){
 @Composable
 fun DevicesList(
     devices: List<Device>,
+    latestMeasurements: List<LatestMeasurement>,
     navController: NavController,
     state: LazyListState,
     deleteDevice: (deviceId: Int) -> Unit
 ) {
     LazyColumn(state = state) {
         items(devices) { device ->
-            DeviceItem(device, navController, deleteDevice)
+            val latestMeasurement = latestMeasurements.find { it.deviceID == device.id }
+            DeviceItem(device, latestMeasurement, navController, deleteDevice)
         }
     }
 }
 
 @Composable
-fun DeviceItem(device: Device, navController: NavController, deleteDevice: (deviceId: Int) -> Unit) {
+fun DeviceItem(
+    device: Device,
+    latestMeasurement: LatestMeasurement?,
+    navController: NavController,
+    deleteDevice: (deviceId: Int) -> Unit
+) {
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
 
@@ -201,28 +213,43 @@ fun DeviceItem(device: Device, navController: NavController, deleteDevice: (devi
             modifier = Modifier.fillMaxWidth()
         ){
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "ID: ${device.id}",
-                    style = MaterialTheme.typography.labelSmall
-                )
-                Text(
-                    text = "Name: ${device.name}",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-                Text(
-                    text = "MAC Address: ${device.mac_address}",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Text(
-                    text = "Type: ${device.type}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            IconButton(onClick = { showDialog = true }) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Device"
-                )
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    Text(
+                        text = device.name,
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    IconButton(onClick = { showDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete Device"
+                        )
+                    }
+                }
+
+                latestMeasurement?.let { measurement ->
+                    val formattedTimestamp = try {
+                        // Safely parse and format the timestamp
+                        val formatter = DateTimeFormatter.ofPattern("dd MMM, HH:mm:ss")
+                        val zonedDateTime = ZonedDateTime.parse(measurement.timestamp)
+                        formatter.format(zonedDateTime)
+                    } catch (e: Exception) {
+                        // Fallback if the timestamp parsing fails
+                        "Unknown time"
+                    }
+
+                    Text(text = "Temperature: ${measurement.temperatureValue}°C", style = MaterialTheme.typography.bodyLarge)
+                    Text(text = "Humidity: ${measurement.humidityValue}%", style = MaterialTheme.typography.bodyLarge)
+                    Text(text = "Last updated: $formattedTimestamp", style = MaterialTheme.typography.bodyMedium)
+                } ?: run {
+                    // Handle the case where `latestMeasurement` is null
+                    Text(text = "No measurement data available", style = MaterialTheme.typography.bodyLarge)
+                }
             }
         }
     }
