@@ -5,12 +5,16 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,6 +61,8 @@ fun AddDeviceScreen(navController: NavController){
     }
 
     var wifiSSID: String? = "unknown"
+    var selectedTabIndex by remember { mutableStateOf(0)}
+    val tabs = listOf("Add new device", "Change Wi-Fi data")
 
     val viewModel = remember { WifiNetworkViewModel(context) }
 
@@ -80,7 +86,7 @@ fun AddDeviceScreen(navController: NavController){
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (wifiSSID != "ESP32"){
+            if (wifiSSID == "ESP32"){
                 Text("Add new device instructions:", style = MaterialTheme.typography.titleLarge)
                 Text("1) Turn on LOCATION while adding a new device")
                 Text("2) Turn off CELLULAR DATA while adding a new device")
@@ -93,42 +99,88 @@ fun AddDeviceScreen(navController: NavController){
                     Text("Refresh")
                 }
             } else {
+                TabRow(
+                    selectedTabIndex = selectedTabIndex,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = index == selectedTabIndex,
+                            onClick = { selectedTabIndex = index },
+                            text = {
+                                Text(
+                                    text = title,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        )
+                    }
+                }
+
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .fillMaxSize()
                 ){
-                    OutlinedTextField(value = deviceName, onValueChange = {deviceName = it},
-                        label = { Text("New device name") }
-                    )
-                    OutlinedTextField(value = wifiName, onValueChange = {wifiName = it},
-                        label = { Text("Wi-Fi to connect") })
-                    OutlinedTextField(value = wifiPassword, onValueChange = {wifiPassword = it},
-                        label = { Text("Wi-Fi password") }
-                    )
-                    Button(onClick = {
-                        Toast.makeText(context, "Device added", Toast.LENGTH_SHORT).show()
-                        connectToESP32(deviceName.trim(), wifiName.trim(), wifiPassword.trim(), token?.trim())
+                    when (selectedTabIndex) {
+                        0 -> {
+                            OutlinedTextField(value = deviceName, onValueChange = { deviceName = it },
+                                label = { Text("New device name") }
+                            )
+                            OutlinedTextField (value = wifiName, onValueChange =
+                            { wifiName = it },
+                                label = { Text("Wi-Fi to connect") })
+                            OutlinedTextField(value = wifiPassword,
+                                onValueChange = { wifiPassword = it },
+                                label = { Text("Wi-Fi password") }
+                            )
+
+                            Button(onClick = {
+                                Toast.makeText(context, "New device added", Toast.LENGTH_SHORT).show()
+                                connectToESP32(
+                                    deviceName.trim(),
+                                    wifiName.trim(),
+                                    wifiPassword.trim(),
+                                    token?.trim(),
+                                    action = selectedTabIndex
+                                )
 //                        val intent = Intent(context, HomeActivity::class.java)
 //                        context.startActivity(intent)
-                    }) {
-                        Text("Add new device")
+                            }) {
+                                Text("Add new device")
+                            }
+                        }
+                        1 -> {
+                            OutlinedTextField (value = wifiName, onValueChange =
+                            { wifiName = it },
+                                label = { Text("Wi-Fi to connect") })
+                            OutlinedTextField(value = wifiPassword,
+                                onValueChange = { wifiPassword = it },
+                                label = { Text("Wi-Fi password") }
+                            )
+
+                            Button(onClick = {
+                                Toast.makeText(context, "Config updated", Toast.LENGTH_SHORT).show()
+                                connectToESP32(
+                                    wifiName = wifiName.trim(),
+                                    wifiPassword =  wifiPassword.trim(),
+                                    action = selectedTabIndex
+                                )
+                            }) {
+                                Text("Update")
+                            }
+                        }
                     }
                 }
             }
-
-//            wifiSSID?.let {
-//                Text("Current Wi-Fi SSID: $it", style = MaterialTheme.typography.bodyLarge)
-//            }
-
-            // Display permission status
-//            PermissionsStatus(permissionsState)
         }
     }
 }
 
-fun connectToESP32(deviceName: String, wifiName: String, wifiPassword: String, token: String?) {
+fun connectToESP32(deviceName: String="", wifiName: String="", wifiPassword: String="", token: String?="", action: Int = 0) {
     val thread = Thread {
         try {
             val socket = Socket("192.168.4.1", 8080) // The IP address and port of the ESP32
@@ -136,7 +188,7 @@ fun connectToESP32(deviceName: String, wifiName: String, wifiPassword: String, t
             val input = BufferedReader(InputStreamReader(socket.getInputStream()))
 
             // Send a message to the ESP32
-            output.println("SSID=$wifiName;PASSWORD=$wifiPassword;DEVICE_NAME=$deviceName;TOKEN=$token")
+            output.println("ACTION=$action;SSID=$wifiName;PASSWORD=$wifiPassword;DEVICE_NAME=$deviceName;TOKEN=$token")
             val response = input.readLine() // Read the response from ESP32
             println("Response from ESP32: $response")
 
