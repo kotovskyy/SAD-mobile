@@ -61,6 +61,7 @@ import com.example.sad.api.devices.DeviceData
 import com.example.sad.navigateSingleOnTop
 import com.example.sad.room.Offline_SAD_Repository
 import com.example.sad.ui.utils.homeNavItems
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -235,8 +236,9 @@ fun DeviceItem(
                 latestMeasurement?.let { measurement ->
                     val formattedTimestamp = try {
                         // Safely parse and format the timestamp
-                        val formatter = DateTimeFormatter.ofPattern("dd MMM, HH:mm:ss")
-                        val zonedDateTime = ZonedDateTime.parse(measurement.timestamp)
+                        val zoneId = ZoneId.systemDefault()
+                        val formatter = DateTimeFormatter.ofPattern("dd MMM, HH:mm")
+                        val zonedDateTime = ZonedDateTime.parse(measurement.timestamp).withZoneSameInstant(zoneId)
                         formatter.format(zonedDateTime)
                     } catch (e: Exception) {
                         // Fallback if the timestamp parsing fails

@@ -46,10 +46,12 @@ import com.example.sad.HomeActivity.DevicesViewModelFactory
 import com.example.sad.HomeActivity.HomeTopBar
 import com.example.sad.HomeActivity.Measurement
 import com.example.sad.LoginSignup.BottomNavItem
+import com.example.sad.LoginSignup.BottomNavigationBar
 import com.example.sad.R
 import com.example.sad.SADApplication
 import com.example.sad.api.auth.SecureStorage
 import com.example.sad.navigateSingleOnTop
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -79,10 +81,22 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
     }
     val measurements = viewModel.deviceMeasurements.collectAsState().value
 
+    val bottomNavItems = listOf(
+        BottomNavItem(
+            title = "Data",
+            iconId = R.drawable.data_24,
+            route = "device_data/$deviceId"
+        ),
+        BottomNavItem(
+            title = "Settings",
+            iconId = R.drawable.settings_24,
+            route = "device_settings/$deviceId"
+        )
+    )
 
     Scaffold(
         topBar = { HomeTopBar("Device data") },
-        bottomBar = { DeviceBottomNavigationBar(navController, "device_data/$deviceId", deviceId) }
+        bottomBar = { BottomNavigationBar(navController, "device_data/$deviceId", bottomNavItems) }
     ){ innerPadding ->
         Box(
             modifier = Modifier
@@ -170,8 +184,9 @@ fun MeasurementTable(measurements: List<Measurement>, state: LazyListState) {
 
 @Composable
 fun MeasurementRow(measurementGroup: List<Measurement>) {
+    val zoneId = ZoneId.systemDefault()
     val formatter = DateTimeFormatter.ofPattern("dd MMM, HH:mm")
-    val zonedDateTime = ZonedDateTime.parse(measurementGroup[0].timestamp)
+    val zonedDateTime = ZonedDateTime.parse(measurementGroup[0].timestamp).withZoneSameInstant(zoneId)
     val formattedTimestamp = formatter.format(zonedDateTime)
 
     Row(
@@ -192,38 +207,6 @@ fun MeasurementRow(measurementGroup: List<Measurement>) {
             ){
                 Text("${measurement.value}", style = MaterialTheme.typography.bodyLarge)
             }
-        }
-    }
-}
-
-@Composable
-fun DeviceBottomNavigationBar(navController: NavController, selectedItem: String, deviceId: Int) {
-
-    val bottomNavItems = listOf(
-        BottomNavItem(
-            title = "Data",
-            iconId = R.drawable.data_24,
-            route = "device_data/$deviceId"
-        ),
-        BottomNavItem(
-            title = "Settings",
-            iconId = R.drawable.settings_24,
-            route = "device_settings/$deviceId"
-        )
-    )
-
-    BottomAppBar {
-        bottomNavItems.forEach { item ->
-            NavigationBarItem(
-                icon = {
-                    Icon(painter = painterResource(id = item.iconId), contentDescription = item.title)
-                },
-                label = { Text(item.title) },
-                selected = selectedItem == item.route,
-                onClick = {
-                    navController.navigateSingleOnTop(item.route)
-                }
-            )
         }
     }
 }

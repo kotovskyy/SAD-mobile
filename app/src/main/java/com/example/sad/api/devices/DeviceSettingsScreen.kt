@@ -59,6 +59,7 @@ import com.example.sad.HomeActivity.DevicesViewModel
 import com.example.sad.HomeActivity.DevicesViewModelFactory
 import com.example.sad.HomeActivity.HomeTopBar
 import com.example.sad.LoginSignup.BottomNavItem
+import com.example.sad.LoginSignup.BottomNavigationBar
 import com.example.sad.R
 import com.example.sad.SADApplication
 import com.example.sad.api.auth.SecureStorage
@@ -77,9 +78,22 @@ fun DeviceSettingsScreen(navController: NavController, deviceId: Int) {
     }
     val settings = viewModel.deviceSettings.collectAsState().value
 
+    val bottomNavItems = listOf(
+        BottomNavItem(
+            title = "Data",
+            iconId = R.drawable.data_24,
+            route = "device_data/$deviceId"
+        ),
+        BottomNavItem(
+            title = "Settings",
+            iconId = R.drawable.settings_24,
+            route = "device_settings/$deviceId"
+        )
+    )
+
     Scaffold(
         topBar = { HomeTopBar("Device settings") },
-        bottomBar = { DeviceBottomNavigationBar(navController, "device_settings/$deviceId", deviceId) }
+        bottomBar = { BottomNavigationBar(navController, "device_settings/$deviceId", bottomNavItems) }
     ){ innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -77,7 +77,7 @@ fun AddDeviceScreen(navController: NavController){
 
 
     Scaffold(
-        topBar = { HomeTopBar("Add new device") },
+        topBar = { HomeTopBar("Device configuration") },
     ) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.Start,
