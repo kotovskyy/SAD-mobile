@@ -47,6 +47,13 @@ val Typography = Typography(
         lineHeight = 20.sp,
         letterSpacing = 0.5.sp
     ),
+    bodySmall = TextStyle(
+        fontFamily = Montserrat,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.5.sp
+    ),
     headlineLarge = TextStyle(
         fontFamily = Montserrat,
         fontSize = 48.sp,

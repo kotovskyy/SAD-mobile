@@ -117,9 +117,8 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
                 .pullRefresh(pullRefreshState),
             contentAlignment = Alignment.TopCenter
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
+            Box(
+                contentAlignment = Alignment.TopCenter,
                 modifier = Modifier
                     .fillMaxSize()
             ) {
@@ -227,7 +226,7 @@ fun PopupBox(onClickOutside: () -> Unit, content: @Composable () -> Unit ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Red.copy(alpha = 0.1f))
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
             .zIndex(10F),
         contentAlignment = Alignment.Center
     ) {
@@ -244,7 +243,7 @@ fun PopupBox(onClickOutside: () -> Unit, content: @Composable () -> Unit ) {
                 modifier = Modifier
                     .fillMaxWidth(1f) // Adjust to a percentage of the screen's width
                     .fillMaxHeight(0.6f) // Adjust to a percentage of the screen's height
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.surface)
                     .clip(RoundedCornerShape(8.dp)) // Make the popup corners rounded
                     .padding(16.dp), // Padding for the content inside the popup
             ) {
@@ -261,7 +260,7 @@ fun Chart(xAxis: List<String>, yAxis: List<Float>, yName: String) {
         LineParameters(
             label = yName,
             data = yAxis.map { it.toDouble() },
-            lineColor = Color.Green,
+            lineColor = MaterialTheme.colorScheme.tertiary,
             lineType = LineType.CURVED_LINE,
             lineShadow = true,
         )
@@ -275,18 +274,18 @@ fun Chart(xAxis: List<String>, yAxis: List<Float>, yName: String) {
                 .fillMaxSize(),
             linesParameters = parameters,
             isGrid = true,
-            gridColor = Color.Gray,
+            gridColor = MaterialTheme.colorScheme.onSurface,
             xAxisData = xAxis,
             animateChart = true,
             showGridWithSpacer = true,
-            yAxisStyle = TextStyle(
-                fontSize = 14.sp,
-                color = Color.Gray,
+            yAxisStyle = MaterialTheme.typography.bodySmall.copy(
+                color = MaterialTheme.colorScheme.onSurface
             ),
-            xAxisStyle = TextStyle(
-                fontSize = 10.sp,
-                color = Color.Gray,
-                fontWeight = FontWeight.W400
+            xAxisStyle = MaterialTheme.typography.bodySmall.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
+            descriptionStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface
             ),
             yAxisRange = 15,
             oneLineChart = false,
