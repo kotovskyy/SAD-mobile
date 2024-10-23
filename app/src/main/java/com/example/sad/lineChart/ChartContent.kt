@@ -23,6 +23,7 @@ import com.example.sad.lineChart.model.LineType
 import com.example.sad.lineChart.components.drawQuarticLineWithShadow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
@@ -44,14 +45,21 @@ internal fun ChartContent(
     onChartClick: (Float, Float) -> Unit,
     clickedPoints: MutableList<Pair<Float, Float>>,
     gridOrientation: GridOrientation,
-    drawEveryN: Int
+    drawEveryN: Int,
+    date: LocalDate
 ) {
 
     val textMeasure = rememberTextMeasurer()
 
-    val animatedProgress = remember {
-        if (animateChart) Animatable(0f) else Animatable(1f)
+    val animatedProgress = remember { Animatable(if (animateChart) 0f else 1f) }
+    LaunchedEffect(key1 = Unit, key2 = date) {
+        if (animateChart){
+            animatedProgress.snapTo(0f)
+        } else {
+            animatedProgress.snapTo(1f)
+        }
     }
+
     var upperValue by rememberSaveable {
         mutableStateOf(linesParameters.getUpperValue())
     }
@@ -74,7 +82,7 @@ internal fun ChartContent(
         ).size.width
         val spacingX = (size.width / 50.dp.toPx()).dp
         val spacingY = (size.height / 8.dp.toPx()).dp
-        val nTicks = xAxisData.count() + 2
+        val nTicks = xAxisData.count() + 5
         val xRegionWidth = (size.width.toDp() / nTicks.toDp()).toDp()
 
         baseChartContainer(

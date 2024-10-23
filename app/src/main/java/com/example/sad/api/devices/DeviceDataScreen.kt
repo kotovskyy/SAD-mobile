@@ -8,19 +8,28 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -60,6 +69,7 @@ import com.example.sad.lineChart.LineChart
 import com.example.sad.lineChart.baseComponents.model.GridOrientation
 import com.example.sad.lineChart.model.LineParameters
 import com.example.sad.lineChart.model.LineType
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -105,6 +115,7 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
     )
 
     var shownChart by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf(LocalDate.now())}
 
     Scaffold(
         topBar = { HomeTopBar("Device data") },
@@ -124,24 +135,40 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
             ) {
                 if (shownChart == "Temperature" || shownChart == "Humidity")
                 {
-                    val N = 25
-                    val yData = measurements
-                        .filter{ it.type_name == shownChart}
-                        .sortedBy { parseTimestampToMillis(it.timestamp) }
-                        .take(N)
-//                    val xData = yData.map {
-//                        val zoneId = ZoneId.systemDefault()
-//                        val formatter = DateTimeFormatter.ofPattern("dd MMM, HH:mm")
-//                        val zonedDateTime = ZonedDateTime.parse(it.timestamp).withZoneSameInstant(zoneId)
-//                        formatter.format(zonedDateTime)
-//                    }
-                    val xData = (0..<N).map {it.toString()}
-                    PopupBox(onClickOutside = { shownChart = ""}) {
-                        Chart(xAxis = xData, yAxis = yData.map { it.value } , yName = shownChart )
+                    val yAxisValues = Array<Float>(48) { 0f }
+                    val fullXAxisRange = generateSequence(0.0) { it + 0.5 }.takeWhile { it <= 24.0 }.map { String.format("%.0f", it) }.toList()
+
+                    measurements
+                        .filter { it.type_name == shownChart && isSameDay(it.timestamp, selectedDate) }
+                        .forEach { measurement ->
+                            // Parse the timestamp to get the hour and minute
+                            val zoneId = ZoneId.systemDefault()
+                            val zonedDateTime = ZonedDateTime.parse(measurement.timestamp).withZoneSameInstant(zoneId)
+                            val hour = zonedDateTime.hour
+                            val minute = zonedDateTime.minute
+
+                            // Calculate the index for the yAxisValues based on the hour and minute
+                            val index = hour * 2 + (minute / 30) // Each hour has 2 half-hour segments
+
+                            // Set the corresponding value in the yAxisValues array
+                            yAxisValues[index] = measurement.value
+                        }
+
+                    PopupBox(
+                        selectedDate = selectedDate,
+                        onDateChanged = { newDate ->
+                            if (newDate != LocalDate.now().plusDays(1)){
+                                selectedDate = newDate
+                            }
+                        },
+                        onClickOutside = { shownChart = ""},
+                    ) {
+                        Chart(xAxis = fullXAxisRange, yAxis = yAxisValues.toList(), yName = shownChart, selectedDate = selectedDate)
                     }
                 }
                 MeasurementTable(measurements = measurements, measurementsListState) {
                     shownChart = it
+                    selectedDate = LocalDate.now()
                 }
             }
             if (isTopOfList){
@@ -150,6 +177,13 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
         }
     }
 }
+
+fun isSameDay(timestamp:String, selectedDate: LocalDate): Boolean{
+    val zonedDateTime = ZonedDateTime.parse(timestamp).withZoneSameInstant(ZoneId.systemDefault())
+    val dateFromTimestamp = zonedDateTime.toLocalDate()
+    return dateFromTimestamp == selectedDate
+}
+
 
 @Composable
 fun MeasurementTable(measurements: List<Measurement>, state: LazyListState, onTitleClick: (String) -> Unit ) {
@@ -222,7 +256,12 @@ fun MeasurementTable(measurements: List<Measurement>, state: LazyListState, onTi
 }
 
 @Composable
-fun PopupBox(onClickOutside: () -> Unit, content: @Composable () -> Unit ) {
+fun PopupBox(
+    selectedDate: LocalDate,
+    onDateChanged: (LocalDate) -> Unit,
+    onClickOutside: () -> Unit,
+    content: @Composable () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -230,24 +269,39 @@ fun PopupBox(onClickOutside: () -> Unit, content: @Composable () -> Unit ) {
             .zIndex(10F),
         contentAlignment = Alignment.Center
     ) {
-        // popup
         Popup(
             alignment = Alignment.Center,
             properties = PopupProperties(
                 excludeFromSystemGesture = true,
             ),
-            // to dismiss on click outside
             onDismissRequest = { onClickOutside() }
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(1f) // Adjust to a percentage of the screen's width
-                    .fillMaxHeight(0.6f) // Adjust to a percentage of the screen's height
+                    .fillMaxWidth(1f)
+                    .fillMaxHeight(0.6f)
                     .background(MaterialTheme.colorScheme.surface)
-                    .clip(RoundedCornerShape(8.dp)) // Make the popup corners rounded
                     .padding(16.dp), // Padding for the content inside the popup
             ) {
-                content()
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween, // Ensure date selector is at the bottom
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f) // Let the content take most of the vertical space
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        content()
+                    }
+                    // Date selector at the bottom of the popup
+                    DateSelector(
+                        selectedDate = selectedDate,
+                        onDateChanged = onDateChanged
+                    )
+                }
             }
         }
     }
@@ -255,7 +309,9 @@ fun PopupBox(onClickOutside: () -> Unit, content: @Composable () -> Unit ) {
 }
 
 @Composable
-fun Chart(xAxis: List<String>, yAxis: List<Float>, yName: String) {
+fun Chart(xAxis: List<String>, yAxis: List<Float>, yName: String, selectedDate: LocalDate) {
+
+    // Create a list of LineParameters for each yValue
     val parameters: List<LineParameters> = listOf(
         LineParameters(
             label = yName,
@@ -290,8 +346,51 @@ fun Chart(xAxis: List<String>, yAxis: List<Float>, yName: String) {
             yAxisRange = 15,
             oneLineChart = false,
             gridOrientation = GridOrientation.GRID,
-            drawEveryN = (xAxis.count() / 12)
+            drawEveryN = (xAxis.count() / 12),
+            date = selectedDate
         )
+    }
+}
+
+@Composable
+fun DateSelector(
+    selectedDate: LocalDate,
+    onDateChanged: (LocalDate) -> Unit,
+){
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // Decrement day button
+        IconButton(onClick = {
+            onDateChanged(selectedDate.minusDays(1))
+        }) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                tint = MaterialTheme.colorScheme.onSurface,
+                contentDescription = "Previous Day"
+            )
+        }
+
+        // Display selected date in the format "23 Oct"
+        Text(
+            text = selectedDate.format(DateTimeFormatter.ofPattern("dd MMM")),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+
+        // Increment day button
+        IconButton(onClick = {
+            onDateChanged(selectedDate.plusDays(1))
+        }) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                tint = MaterialTheme.colorScheme.onSurface,
+                contentDescription = "Next Day"
+            )
+        }
     }
 }
 

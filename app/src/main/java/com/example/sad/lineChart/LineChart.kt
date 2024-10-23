@@ -16,6 +16,8 @@ import com.example.sad.lineChart.baseComponents.model.GridOrientation
 import com.example.sad.lineChart.baseComponents.model.LegendPosition
 import com.example.sad.lineChart.model.LineParameters
 import com.example.sad.lineChart.utils.ChartDefaultValues
+import java.time.LocalDate
+
 /**
  * Composable function to render a line chart with optional legends.
  *
@@ -64,7 +66,8 @@ fun LineChart(
     oneLineChart: Boolean = ChartDefaultValues.specialChart,
     gridOrientation: GridOrientation = ChartDefaultValues.gridOrientation,
     legendPosition: LegendPosition = ChartDefaultValues.legendPosition,
-    drawEveryN: Int = 1
+    drawEveryN: Int = 1,
+    date: LocalDate
 ) {
     val clickedPoints = remember { mutableStateListOf<Pair<Float, Float>>() }
 
@@ -109,7 +112,8 @@ fun LineChart(
                         },
                         clickedPoints = clickedPoints,
                         gridOrientation = gridOrientation,
-                        drawEveryN = drawEveryN
+                        drawEveryN = drawEveryN,
+                        date = date
                     )
                 }
                 LegendPosition.BOTTOM -> {
@@ -136,7 +140,8 @@ fun LineChart(
                         },
                         clickedPoints = clickedPoints,
                         gridOrientation = gridOrientation,
-                        drawEveryN = drawEveryN
+                        drawEveryN = drawEveryN,
+                        date = date
                     )
                     LazyRow(
                         horizontalArrangement = horizontalArrangement,
@@ -177,7 +182,8 @@ fun LineChart(
                         },
                         clickedPoints = clickedPoints,
                         gridOrientation = gridOrientation,
-                        drawEveryN = drawEveryN
+                        drawEveryN = drawEveryN,
+                        date = date
                     )
                 }
             }
