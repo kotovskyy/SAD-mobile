@@ -83,10 +83,6 @@ dependencies {
     ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
 
-
-    val chart_version = "Beta-0.0.5"
-    implementation("io.github.thechance101:chart:$chart_version")
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -3,10 +3,12 @@ package com.example.sad.api.devices
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -45,10 +47,6 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.aay.compose.baseComponents.model.GridOrientation
-import com.aay.compose.lineChart.LineChart
-import com.aay.compose.lineChart.model.LineParameters
-import com.aay.compose.lineChart.model.LineType
 import com.example.sad.HomeActivity.DevicesViewModel
 import com.example.sad.HomeActivity.DevicesViewModelFactory
 import com.example.sad.HomeActivity.HomeTopBar
@@ -58,9 +56,14 @@ import com.example.sad.LoginSignup.BottomNavItem
 import com.example.sad.LoginSignup.BottomNavigationBar
 import com.example.sad.R
 import com.example.sad.api.auth.SecureStorage
+import com.example.sad.lineChart.LineChart
+import com.example.sad.lineChart.baseComponents.model.GridOrientation
+import com.example.sad.lineChart.model.LineParameters
+import com.example.sad.lineChart.model.LineType
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -120,10 +123,20 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                if (shownChart == "Temperature")
+                if (shownChart == "Temperature" || shownChart == "Humidity")
                 {
-                    val yData = measurements.filter{ it.type_name == shownChart}.sortedBy { parseTimestampToMillis(it.timestamp) }
-                    val xData = yData.map { it.timestamp }
+                    val N = 25
+                    val yData = measurements
+                        .filter{ it.type_name == shownChart}
+                        .sortedBy { parseTimestampToMillis(it.timestamp) }
+                        .take(N)
+//                    val xData = yData.map {
+//                        val zoneId = ZoneId.systemDefault()
+//                        val formatter = DateTimeFormatter.ofPattern("dd MMM, HH:mm")
+//                        val zonedDateTime = ZonedDateTime.parse(it.timestamp).withZoneSameInstant(zoneId)
+//                        formatter.format(zonedDateTime)
+//                    }
+                    val xData = (0..<N).map {it.toString()}
                     PopupBox(onClickOutside = { shownChart = ""}) {
                         Chart(xAxis = xData, yAxis = yData.map { it.value } , yName = shownChart )
                     }
@@ -214,7 +227,7 @@ fun PopupBox(onClickOutside: () -> Unit, content: @Composable () -> Unit ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Gray.copy(alpha = 0.5f))
+            .background(Color.Red.copy(alpha = 0.1f))
             .zIndex(10F),
         contentAlignment = Alignment.Center
     ) {
@@ -228,10 +241,12 @@ fun PopupBox(onClickOutside: () -> Unit, content: @Composable () -> Unit ) {
             onDismissRequest = { onClickOutside() }
         ) {
             Box(
-                Modifier
+                modifier = Modifier
+                    .fillMaxWidth(1f) // Adjust to a percentage of the screen's width
+                    .fillMaxHeight(0.6f) // Adjust to a percentage of the screen's height
                     .background(Color.White)
-                    .clip(RoundedCornerShape(4.dp)),
-                contentAlignment = Alignment.Center
+                    .clip(RoundedCornerShape(8.dp)) // Make the popup corners rounded
+                    .padding(16.dp), // Padding for the content inside the popup
             ) {
                 content()
             }
@@ -246,18 +261,21 @@ fun Chart(xAxis: List<String>, yAxis: List<Float>, yName: String) {
         LineParameters(
             label = yName,
             data = yAxis.map { it.toDouble() },
-            lineColor = Color.Gray,
+            lineColor = Color.Green,
             lineType = LineType.CURVED_LINE,
             lineShadow = true,
         )
     )
 
-    Box(Modifier) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+    ) {
         LineChart(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             linesParameters = parameters,
             isGrid = true,
-            gridColor = Color.Blue,
+            gridColor = Color.Gray,
             xAxisData = xAxis,
             animateChart = true,
             showGridWithSpacer = true,
@@ -266,13 +284,14 @@ fun Chart(xAxis: List<String>, yAxis: List<Float>, yName: String) {
                 color = Color.Gray,
             ),
             xAxisStyle = TextStyle(
-                fontSize = 14.sp,
+                fontSize = 10.sp,
                 color = Color.Gray,
                 fontWeight = FontWeight.W400
             ),
-            yAxisRange = 14,
+            yAxisRange = 15,
             oneLineChart = false,
-            gridOrientation = GridOrientation.VERTICAL
+            gridOrientation = GridOrientation.GRID,
+            drawEveryN = (xAxis.count() / 12)
         )
     }
 }
