@@ -135,8 +135,8 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
             ) {
                 if (shownChart == "Temperature" || shownChart == "Humidity")
                 {
-                    val yAxisValues = Array<Float>(48) { 0f }
-                    val fullXAxisRange = generateSequence(0.0) { it + 0.5 }.takeWhile { it <= 24.0 }.map { String.format("%.0f", it) }.toList()
+                    var yAxisValues = Array<Float>(48) { 0f }
+                    var fullXAxisRange = generateSequence(0.0) { it + 0.5 }.takeWhile { it <= 24.0 }.map { String.format("%.0f", it) }.toList()
 
                     measurements
                         .filter { it.type_name == shownChart && isSameDay(it.timestamp, selectedDate) }
@@ -153,6 +153,15 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
                             // Set the corresponding value in the yAxisValues array
                             yAxisValues[index] = measurement.value
                         }
+
+                    yAxisValues = removeTrailingZeros(yAxisValues)
+
+                    val startHour = getStartingHour(yAxisValues)
+                    if (startHour > 0){
+                        fullXAxisRange = fullXAxisRange.slice(startHour-1..<fullXAxisRange.size)
+                        fullXAxisRange = generateSequence(startHour.toDouble()/2) { it + 0.5 }.takeWhile { it < 24.0 }.map { String.format("%.0f", it) }.toList()
+                        yAxisValues = removeStartingZeros(yAxisValues)
+                    }
 
                     PopupBox(
                         selectedDate = selectedDate,
@@ -176,6 +185,32 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
             }
         }
     }
+}
+
+fun removeTrailingZeros(data: Array<Float>): Array<Float> {
+    var endIndex = data.size - 1
+    while (endIndex >= 0 && data[endIndex] == 0f) {
+        endIndex--
+    }
+    return data.slice(0..endIndex).toTypedArray()
+}
+
+fun removeStartingZeros(data: Array<Float>): Array<Float>{
+    var startIndex = 0
+    while(startIndex < data.size-1 && data[startIndex] == 0f){
+        startIndex++
+    }
+    return data.slice(startIndex..<data.size).toTypedArray()
+}
+
+fun getStartingHour(data: Array<Float>): Int {
+    // returns value from 0 to 47 (every 1/2 hour period)
+    var startIndex = 0
+    while(startIndex < data.size-1 && data[startIndex] == 0f){
+        startIndex++
+    }
+    Log.d("START HOUR", "VALUE: $startIndex")
+    return startIndex
 }
 
 fun isSameDay(timestamp:String, selectedDate: LocalDate): Boolean{
@@ -343,10 +378,12 @@ fun Chart(xAxis: List<String>, yAxis: List<Float>, yName: String, selectedDate: 
             descriptionStyle = MaterialTheme.typography.bodyMedium.copy(
                 color = MaterialTheme.colorScheme.onSurface
             ),
-            yAxisRange = 15,
+            yAxisRange = 10,
             oneLineChart = false,
             gridOrientation = GridOrientation.GRID,
-            drawEveryN = (xAxis.count() / 12),
+            drawEveryN = if (xAxis.size < 24) 2 else (xAxis.count() / 12),
+//            drawEveryN = (xAxis.count() / 12),
+//            drawEveryN = 2,
             date = selectedDate
         )
     }

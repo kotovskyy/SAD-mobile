@@ -173,7 +173,7 @@ internal fun ChartContent(
                 lowerValue = it.getLowerValue()
             }
 
-            delay(400)
+            delay(200)
             animatedProgress.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(durationMillis = 1000, easing = LinearEasing)
@@ -183,11 +183,11 @@ internal fun ChartContent(
 }
 
 private fun List<LineParameters>.getUpperValue(): Double {
-    return this.flatMap { item -> item.data }.maxOrNull()?.plus(1.0) ?: 0.0
+    return this.flatMap { item -> item.data }.maxOrNull()?.plus(0.5) ?: 0.0
 }
 
 private fun List<LineParameters>.getLowerValue(): Double {
-    return this.flatMap { item -> item.data }.minOrNull() ?: 0.0
+    return this.flatMap { item -> item.data }.filter { it > 0.0 }.minOrNull()?.minus(0.5) ?: 0.0
 }
 
 private fun CoroutineScope.collectToSnapShotFlow(

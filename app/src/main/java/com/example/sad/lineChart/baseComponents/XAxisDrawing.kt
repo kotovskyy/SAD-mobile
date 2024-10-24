@@ -32,7 +32,7 @@ internal fun <T> DrawScope.xAxisDrawing(
     xAxisData.forEachIndexed { index, dataPoint ->
         val xLength = (textSpace.toDp()) + (index * xRegionWidth)
 
-        if (index % drawEveryN == 0 || index == xAxisData.count()-1) {
+        if (index % drawEveryN == 0 || index == xAxisData.count()-1 || index == 0) {
             drawContext.canvas.nativeCanvas.apply {
                 drawText(
                     textMeasurer = textMeasure,
