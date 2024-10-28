@@ -52,7 +52,7 @@ internal fun ChartContent(
     val textMeasure = rememberTextMeasurer()
 
     val animatedProgress = remember { Animatable(if (animateChart) 0f else 1f) }
-    LaunchedEffect(key1 = Unit, key2 = date) {
+    LaunchedEffect(key1 = Unit, key2 = date, key3 = linesParameters[0].data) {
         if (animateChart){
             animatedProgress.snapTo(0f)
         } else {

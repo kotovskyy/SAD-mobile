@@ -1,9 +1,10 @@
 package com.example.sad.api.devices
 
 import android.util.Log
+import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,17 +15,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -32,25 +35,28 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
@@ -60,7 +66,6 @@ import com.example.sad.HomeActivity.DevicesViewModel
 import com.example.sad.HomeActivity.DevicesViewModelFactory
 import com.example.sad.HomeActivity.HomeTopBar
 import com.example.sad.HomeActivity.Measurement
-import com.example.sad.HomeActivity.parseTimestampToMillis
 import com.example.sad.LoginSignup.BottomNavItem
 import com.example.sad.LoginSignup.BottomNavigationBar
 import com.example.sad.R
@@ -81,7 +86,6 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
     val context = LocalContext.current.applicationContext
     val token = SecureStorage.getToken(context)
     val viewModel: DevicesViewModel = viewModel(factory = DevicesViewModelFactory(token, context))
-    val device = viewModel.devices.collectAsState().value.find { it.id == deviceId }
     val measurementsListState = rememberLazyListState()
     val isTopOfList by remember {
         derivedStateOf {
@@ -114,7 +118,10 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
         )
     )
 
-    var shownChart by remember { mutableStateOf("") }
+    val chartTabs = listOf("Temperature", "Humidity")
+    var selectedChartTabIndex by remember { mutableStateOf(0)}
+
+    var shownChart by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableStateOf(LocalDate.now())}
 
     Scaffold(
@@ -133,13 +140,13 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                if (shownChart == "Temperature" || shownChart == "Humidity")
+                if (shownChart)
                 {
                     var yAxisValues = Array<Float>(48) { 0f }
                     var fullXAxisRange = generateSequence(0.0) { it + 0.5 }.takeWhile { it <= 24.0 }.map { String.format("%.0f", it) }.toList()
 
                     measurements
-                        .filter { it.type_name == shownChart && isSameDay(it.timestamp, selectedDate) }
+                        .filter { it.type_name == chartTabs[selectedChartTabIndex] && isSameDay(it.timestamp, selectedDate) }
                         .forEach { measurement ->
                             // Parse the timestamp to get the hour and minute
                             val zoneId = ZoneId.systemDefault()
@@ -165,19 +172,22 @@ fun DeviceDataScreen(navController: NavController, deviceId: Int) {
 
                     PopupBox(
                         selectedDate = selectedDate,
+                        selectedChartTabIndex = selectedChartTabIndex,
+                        chartTabs = chartTabs,
                         onDateChanged = { newDate ->
                             if (newDate != LocalDate.now().plusDays(1)){
                                 selectedDate = newDate
                             }
                         },
-                        onClickOutside = { shownChart = ""},
+                        onClickOutside = { shownChart = false},
+                        onTabChange = { selectedChartTabIndex = it }
                     ) {
-                        Chart(xAxis = fullXAxisRange, yAxis = yAxisValues.toList(), yName = shownChart, selectedDate = selectedDate)
+                        Chart(xAxis = fullXAxisRange, yAxis = yAxisValues.toList(), yName = chartTabs[selectedChartTabIndex], selectedDate = selectedDate)
                     }
                 }
-                MeasurementTable(measurements = measurements, measurementsListState) {
-                    shownChart = it
-                    selectedDate = LocalDate.now()
+                MeasurementTable(measurements = measurements, measurementsListState) { date ->
+                    shownChart = true
+                    selectedDate = date
                 }
             }
             if (isTopOfList){
@@ -221,71 +231,67 @@ fun isSameDay(timestamp:String, selectedDate: LocalDate): Boolean{
 
 
 @Composable
-fun MeasurementTable(measurements: List<Measurement>, state: LazyListState, onTitleClick: (String) -> Unit ) {
+fun MeasurementTable(measurements: List<Measurement>, state: LazyListState, onChartClick: (LocalDate) -> Unit ) {
+
+
     val distinctTypes = measurements.distinctBy { it.type }
-    val colNames = distinctTypes.map {
-        it.type_name + " " +
-                when (it.unit) {
-                    "celsius" -> {
-                        "(°C)"
-                    }
-                    "percent" -> {
-                        "(%)"
-                    }
-                    "fahrenheit" -> {
-                        "(°F)"
-                    }
-                    else -> {
-                        "(${it.unit})"
-                    }
-                }
+
+    val groupedByDate = measurements.groupBy {
+        val zonedDateTime = ZonedDateTime.parse(it.timestamp).withZoneSameInstant(ZoneId.systemDefault())
+        zonedDateTime.toLocalDate()
     }
 
-    var measurementsGrouped = emptyList<List<Measurement>>()
-    try {
-        measurementsGrouped = measurements.chunked(distinctTypes.count())
-    } catch (e: Exception){
-        // nothing here for now
-    }
+    val expandedStates = remember { mutableStateMapOf<LocalDate, Boolean>() }
 
-    LazyColumn(state = state) {
-        item {
-            // Define the header of the table
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
+    LazyColumn(state = state)
+    {
+        groupedByDate.forEach { (date, dailyMeasurements) ->
+            item {
                 Row(
-                    modifier = Modifier.weight(1f)
-                ){
-                    Text("Time", style = MaterialTheme.typography.titleLarge)
-                }
-                colNames.forEach { colName ->
-                    Log.d("COLNAME", colName)
-                    Row(
-                        modifier = Modifier.weight(1f)
-                    ){
-                        TextButton(onClick = {
-                            val clippedColName = colName.subSequence(0, colName.indexOfFirst { it == ' ' })
-                            Log.d("CLICKED TABLE", "COLNAME: $colName; CLIPPED: $clippedColName")
-                            onTitleClick(clippedColName.toString())
-                        }) {
-                            Text(
-                                colName.replaceFirstChar {
-                                    colName[0].uppercaseChar()
-                                },
-                                style = MaterialTheme.typography.titleLarge
-                            )
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 5.dp)
+                        .background(color = MaterialTheme.colorScheme.secondary)
+                        .clickable {
+                            expandedStates[date] = !(expandedStates[date] ?: false)
                         }
-
+                ){
+                    // Center the date
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = date.format(DateTimeFormatter.ofPattern("dd MMM yyyy")),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSecondary,
+                            modifier = Modifier.padding(vertical = 12.dp)
+                        )
+                    }
+                    // Arrow button on the right edge
+                    IconButton(onClick = {
+                        onChartClick(date)
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.line_chart_icon),
+                            contentDescription = "Chart",
+                            tint = MaterialTheme.colorScheme.onSecondary,
+                            modifier = Modifier.size(32.dp)
+                        )
                     }
                 }
             }
-        }
-        items(measurementsGrouped) { measurementGroup ->
-            MeasurementRow(measurementGroup)
+
+            if (expandedStates[date] == true) {
+                dailyMeasurements.chunked(distinctTypes.size).withIndex().forEach { (index, measurementGroup) ->
+                    item {
+                        MeasurementRow(
+                            measurementGroup = measurementGroup,
+                            textColor = if (index % 2 == 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onTertiaryContainer,
+                            backgroundColor = if (index % 2 == 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.tertiaryContainer
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -293,6 +299,9 @@ fun MeasurementTable(measurements: List<Measurement>, state: LazyListState, onTi
 @Composable
 fun PopupBox(
     selectedDate: LocalDate,
+    selectedChartTabIndex: Int,
+    chartTabs: List<String>,
+    onTabChange: (Int) -> Unit,
     onDateChanged: (LocalDate) -> Unit,
     onClickOutside: () -> Unit,
     content: @Composable () -> Unit
@@ -314,7 +323,7 @@ fun PopupBox(
             Box(
                 modifier = Modifier
                     .fillMaxWidth(1f)
-                    .fillMaxHeight(0.6f)
+                    .fillMaxHeight(0.7f)
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(16.dp), // Padding for the content inside the popup
             ) {
@@ -323,6 +332,38 @@ fun PopupBox(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    TabRow(
+                        selectedTabIndex = selectedChartTabIndex,
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        indicator = { tabPositions ->
+                            // Draw a custom indicator below the selected tab
+                            Box(
+                                modifier = Modifier
+                                    .tabIndicatorOffset(tabPositions[selectedChartTabIndex]) // Position the indicator
+                                    .background(MaterialTheme.colorScheme.tertiary, RoundedCornerShape(4.dp)) // Change color here
+                                    .height(3.dp) // Set height of the indicator
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(shape = RoundedCornerShape(12.dp))
+                            .padding(bottom = 12.dp)
+                    ) {
+                        chartTabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = index == selectedChartTabIndex,
+                                onClick = { onTabChange(index) },
+                                text = {
+                                    Text(
+                                        text = title,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.W600
+                                    )
+                                }
+                            )
+                        }
+                    }
                     Box(
                         modifier = Modifier
                             .weight(1f) // Let the content take most of the vertical space
@@ -340,7 +381,6 @@ fun PopupBox(
             }
         }
     }
-
 }
 
 @Composable
@@ -432,30 +472,85 @@ fun DateSelector(
 }
 
 @Composable
-fun MeasurementRow(measurementGroup: List<Measurement>) {
+fun MeasurementRow(
+    measurementGroup: List<Measurement>,
+    textColor: Color,
+    backgroundColor: Color
+) {
     val zoneId = ZoneId.systemDefault()
-    val formatter = DateTimeFormatter.ofPattern("dd MMM, HH:mm")
+    val formatter = DateTimeFormatter.ofPattern("HH:mm")
     val zonedDateTime = ZonedDateTime.parse(measurementGroup[0].timestamp).withZoneSameInstant(zoneId)
     val formattedTimestamp = formatter.format(zonedDateTime)
 
     Row(
+        horizontalArrangement = Arrangement.SpaceAround,
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.onBackground)
-            .padding(horizontal = 8.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+            .background(backgroundColor)
+//            .border(1.dp, MaterialTheme.colorScheme.onBackground)
+            .padding(horizontal = 8.dp, vertical = 12.dp)
     ) {
         Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)
-        ){
-            Text(formattedTimestamp, style = MaterialTheme.typography.bodyLarge)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.time_icon),
+                contentDescription = "Time",
+                modifier = Modifier.size(24.dp),
+                tint = textColor
+            )
+            Spacer(modifier = Modifier.width(5.dp))
+            Text(
+                text = formattedTimestamp,
+                style = MaterialTheme.typography.bodyLarge,
+                color = textColor
+            )
         }
         measurementGroup.sortedBy { it.type }.forEach { measurement ->
             Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ){
-                Text("${measurement.value}", style = MaterialTheme.typography.bodyLarge)
+                Icon(
+                    painter = painterResource(
+                        id = if (measurement.type_name == "Temperature") {
+                                R.drawable.temperature_icon
+                            } else if (measurement.type_name == "Humidity") {
+                                R.drawable.humidity_icon
+                            } else {
+                            R.drawable.data_24
+                        }
+                        ),
+                    contentDescription = "Temperature",
+                    modifier = Modifier.size(24.dp),
+                    tint = textColor
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(
+                    text = "${measurement.value} ${getMeasurementUnitSign(measurement)}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = textColor
+                )
             }
+        }
+    }
+}
+
+
+fun getMeasurementUnitSign(measurement: Measurement): String{
+    return when (measurement.unit) {
+        "celsius" -> {
+            "°C"
+        }
+        "percent" -> {
+            "%"
+        }
+        "fahrenheit" -> {
+            "°F"
+        }
+        else -> {
+            "${measurement.unit}"
         }
     }
 }
