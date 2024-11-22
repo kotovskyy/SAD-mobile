@@ -86,7 +86,7 @@ fun AddDeviceScreen(navController: NavController){
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (wifiSSID == "ESP32"){
+            if (wifiSSID != "ESP32"){
                 Text("Add new device instructions:", style = MaterialTheme.typography.titleLarge)
                 Text("1) Turn on LOCATION while adding a new device")
                 Text("2) Turn off CELLULAR DATA while adding a new device")
