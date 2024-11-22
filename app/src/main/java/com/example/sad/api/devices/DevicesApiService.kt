@@ -20,6 +20,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.PATCH
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
 data class SettingUpdateRequest(val value: Float?)
 data class SettingUpdateResponse(val success: Boolean, val message: String)
@@ -59,6 +60,9 @@ object DevicesRetrofitInstance {
     fun createApi(token: String?): DevicesApiService {
         val client = OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(token))
+            .connectTimeout(60, TimeUnit.SECONDS)  // Connection timeout
+            .readTimeout(60, TimeUnit.SECONDS)     // Read timeout
+            .writeTimeout(60, TimeUnit.SECONDS)    // Write timeout
             .build()
 
         return Retrofit.Builder()
